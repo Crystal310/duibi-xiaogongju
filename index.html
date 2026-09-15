@@ -159,10 +159,13 @@ input[type=file]{display:none;}
       <div class="kicker">批量图片对比评测工具</div>
       <h1>批量图片对比评测台</h1>
     </div>
-    <div class="tabs">
-      <button class="tab active" data-target="p1">① 上传</button>
-      <button class="tab" data-target="p2" id="tabP2" disabled>② 逐条评测</button>
-      <button class="tab" data-target="p3" id="tabP3" disabled>③ 结果汇总</button>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="tabs">
+        <button class="tab active" data-target="p1">① 上传</button>
+        <button class="tab" data-target="p2" id="tabP2" disabled>② 逐条评测</button>
+        <button class="tab" data-target="p3" id="tabP3" disabled>③ 结果汇总</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btnResetAll">清除数据，重新上传</button>
     </div>
   </div>
 
@@ -321,6 +324,15 @@ async function dbGetAll(){
     const req = tx.objectStore('items').getAll();
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
+  });
+}
+async function dbClearAll(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('items', 'readwrite');
+    tx.objectStore('items').clear();
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
   });
 }
 
@@ -617,6 +629,24 @@ function switchTab(id){
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
   if(id === 'p3') renderResults();
 }
+
+document.getElementById('btnResetAll').addEventListener('click', async () => {
+  if(!confirm('确定要清除所有已上传的图片和标记数据吗？此操作不可撤销，卡片名称等设置会保留。')) return;
+  await dbClearAll();
+  state.items = [];
+  state.curIndex = 0;
+  state.filter = 'all';
+  state.categories = [];
+  state.badGrouped = false;
+  saveCategories();
+  state.zones.forEach(z => { state.pending[z.id] = []; });
+  renderUploadZones();
+  updateClusterBtnLabel();
+  document.querySelectorAll('#filterPills .pill').forEach(b => b.classList.toggle('active', b.dataset.f === 'all'));
+  document.getElementById('tabP2').disabled = true;
+  document.getElementById('tabP3').disabled = true;
+  switchTab('p1');
+});
 
 /* ================== 页面 2：逐条评测 ================== */
 function renderCurrent(){
