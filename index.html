@@ -216,6 +216,7 @@ input[type=file]{display:none;}
         <button class="pill active" data-f="all">全部</button>
         <button class="pill" data-f="bad">仅 Bad case</button>
         <button class="pill" data-f="good">仅 Good case</button>
+        <button class="pill" data-f="pending">仅 Medium</button>
         <button class="pill" data-f="marked">只看已标记</button>
       </div>
       <span class="hint" id="filterCount"></span>
@@ -714,6 +715,7 @@ function filteredItems(){
   return state.items.filter(it => {
     if(state.filter === 'bad') return it.tag === 'bad';
     if(state.filter === 'good') return it.tag === 'good';
+    if(state.filter === 'pending') return it.tag === 'pending';
     if(state.filter === 'marked') return !!it.tag;
     return true;
   });
@@ -879,7 +881,7 @@ async function buildExportHTML(){
     rows: rows.join('\n'),
     good: pct(good), bad: pct(bad), pending: pct(pending),
     count: items.length, total,
-    filterName: { all: '全部', bad: '仅 Bad case', good: '仅 Good case', marked: '只看已标记' }[state.filter],
+    filterName: { all: '全部', bad: '仅 Bad case', good: '仅 Good case', pending: '仅 Medium', marked: '只看已标记' }[state.filter],
   });
   hideOverlay();
   return html;
