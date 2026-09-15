@@ -107,15 +107,28 @@ textarea.note{width:100%;min-height:54px;border-radius:9px;border:1px solid var(
 .result-grid{padding:20px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
 @media (max-width:600px){.result-grid{grid-template-columns:1fr;}}
 .rcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
+.rcard[draggable="true"]{cursor:grab;}
+.rcard.dragging{opacity:.4;}
 .rcard .triplerow{display:grid;gap:2px;background:var(--line);cursor:zoom-in;}
 .rcard .triplerow .cell{aspect-ratio:3/4;background:var(--surface);overflow:hidden;}
 .rcard .triplerow .cell img{width:100%;height:100%;object-fit:contain;}
 .rcard .meta{padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .rcard .fname{font-size:11px;font-family:ui-monospace,monospace;color:var(--ink-dim);}
-.rcard .note{padding:0 12px 12px;font-size:12px;color:var(--ink-dim);line-height:1.5;}
+.card-note{display:block;width:100%;border:none;border-top:1px solid var(--line);background:transparent;color:var(--ink-dim);font:inherit;font-size:12px;line-height:1.5;padding:8px 12px;resize:vertical;min-height:40px;cursor:text;}
+.card-note:focus{outline:none;background:var(--surface);color:var(--ink);}
 .badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;border:none;cursor:pointer;font-family:inherit;}
 .badge.good{background:var(--good-bg);color:var(--good);} .badge.bad{background:var(--bad-bg);color:var(--bad);} .badge.pending{background:var(--pending-bg);color:var(--pending);} .badge.none{background:var(--line);color:var(--ink-dim);}
 .export-row{padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--ink-dim);font-size:12px;}
+
+/* Bad case 归纳分组 */
+.result-grouped{padding:20px 22px;display:flex;flex-direction:column;gap:26px;}
+.cat-section{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 4px 4px;transition:outline .1s;}
+.cat-section.drag-over{outline:2px dashed var(--accent);outline-offset:-2px;}
+.cat-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 14px 12px;flex-wrap:wrap;}
+.cat-name-input{font-size:14px;font-weight:800;border:none;background:transparent;color:var(--ink);font-family:inherit;padding:2px 4px;border-radius:5px;min-width:80px;}
+.cat-name-input:hover,.cat-name-input:focus{background:var(--surface-2);outline:1px solid var(--line);}
+.cat-count{font-size:11.5px;color:var(--ink-dim);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.cat-grid{padding:0 14px 14px;}
 
 /* lightbox */
 .lightbox{position:fixed;inset:0;background:rgba(10,10,10,.82);display:none;align-items:center;justify-content:center;z-index:50;padding:24px;}
@@ -220,7 +233,10 @@ input[type=file]{display:none;}
         <button class="pill" data-f="pending">仅 Medium <span class="pill-pct" data-pct="pending"></span></button>
         <button class="pill" data-f="marked">只看已标记 <span class="pill-pct" data-pct="marked"></span></button>
       </div>
-      <span class="hint" id="filterCount"></span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="hint" id="filterCount"></span>
+        <button class="btn btn-ghost btn-sm" id="btnCluster">按备注归纳 Bad case</button>
+      </div>
     </div>
     <div class="result-grid" id="resultGrid"></div>
   </div>
@@ -311,12 +327,15 @@ function loadZones(){
 }
 function saveZones(){ localStorage.setItem(ZONES_KEY, JSON.stringify(state.zones)); }
 
+const catMeta = loadCategoriesMeta();
 const state = {
   zones: loadZones(),   // [{id, name}]
   pending: {},           // zoneId -> File[]
-  items: [],             // {key, values:{zoneId:{name,blob,url,w,h}}, tag, note}
+  items: [],             // {key, values:{zoneId:{name,blob,url,w,h}}, tag, note, subCategoryId}
   curIndex: 0,
   filter: 'all',
+  categories: catMeta.categories,   // Bad case 二级分类: [{id, name}]
+  badGrouped: catMeta.badGrouped,   // 是否已按备注归纳、以分类分组展示
 };
 state.zones.forEach(z => { state.pending[z.id] = []; });
 
@@ -637,7 +656,7 @@ function setTag(item, tag, advance){
 }
 function sanitizeForDB(item){
   // url 是运行时生成的 ObjectURL，不需要持久化
-  const clone = { key: item.key, tag: item.tag, note: item.note, values: {} };
+  const clone = { key: item.key, tag: item.tag, note: item.note, subCategoryId: item.subCategoryId || null, values: {} };
   Object.keys(item.values).forEach(zid => {
     const v = item.values[zid];
     clone.values[zid] = v ? { name: v.name, blob: v.blob, w: v.w, h: v.h } : null;
@@ -736,49 +755,215 @@ function updatePillStats(){
   document.querySelector('[data-pct="marked"]').textContent = pct(marked);
 }
 
+function createResultCard(it, draggable){
+  const card = document.createElement('div');
+  card.className = 'rcard';
+  if(draggable){
+    card.draggable = true;
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', it.key);
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  }
+
+  const row = document.createElement('div');
+  row.className = 'triplerow';
+  row.style.gridTemplateColumns = `repeat(${Math.max(state.zones.length, 1)}, 1fr)`;
+  state.zones.forEach(z => {
+    const entry = it.values[z.id];
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    if(entry) cell.innerHTML = `<img src="${entry.url}">`;
+    row.appendChild(cell);
+  });
+  row.addEventListener('click', () => openLightbox(it));
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  meta.innerHTML = `<span class="fname">${escapeHtml(it.key)}</span><button class="badge ${it.tag || 'none'}" data-key="${it.key}">${tagLabel(it.tag)}</button>`;
+  meta.querySelector('button').addEventListener('click', ev => {
+    ev.stopPropagation();
+    cycleTag(it);
+    renderResults();
+  });
+
+  const noteBox = document.createElement('textarea');
+  noteBox.className = 'card-note';
+  noteBox.placeholder = '写评语…';
+  noteBox.value = it.note || '';
+  noteBox.addEventListener('click', e => e.stopPropagation());
+  noteBox.addEventListener('mousedown', e => e.stopPropagation());
+  let noteBoxTimer = null;
+  noteBox.addEventListener('input', () => {
+    it.note = noteBox.value;
+    clearTimeout(noteBoxTimer);
+    noteBoxTimer = setTimeout(() => dbPut(sanitizeForDB(it)), 400);
+  });
+
+  card.appendChild(row);
+  card.appendChild(meta);
+  card.appendChild(noteBox);
+  return card;
+}
+
 function renderResults(){
   updatePillStats();
   const grid = document.getElementById('resultGrid');
   const items = filteredItems();
   document.getElementById('filterCount').textContent = `共 ${items.length} 组`;
   grid.innerHTML = '';
+  grid.className = 'result-grid';
   if(items.length === 0){
     grid.innerHTML = '<div class="empty-hint">没有符合条件的图片</div>';
     return;
   }
-  items.forEach(it => {
-    const card = document.createElement('div');
-    card.className = 'rcard';
-    const row = document.createElement('div');
-    row.className = 'triplerow';
-    row.style.gridTemplateColumns = `repeat(${Math.max(state.zones.length, 1)}, 1fr)`;
-    state.zones.forEach(z => {
-      const entry = it.values[z.id];
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      if(entry) cell.innerHTML = `<img src="${entry.url}">`;
-      row.appendChild(cell);
-    });
-    row.addEventListener('click', () => openLightbox(it));
-    const meta = document.createElement('div');
-    meta.className = 'meta';
-    meta.innerHTML = `<span class="fname">${escapeHtml(it.key)}</span><button class="badge ${it.tag || 'none'}" data-key="${it.key}">${tagLabel(it.tag)}</button>`;
-    meta.querySelector('button').addEventListener('click', ev => {
-      ev.stopPropagation();
-      cycleTag(it);
-      renderResults();
-    });
-    card.appendChild(row);
-    card.appendChild(meta);
-    if(it.note){
-      const noteEl = document.createElement('div');
-      noteEl.className = 'note';
-      noteEl.textContent = it.note;
-      card.appendChild(noteEl);
+  if(state.filter === 'bad' && state.badGrouped && state.categories.length){
+    grid.className = 'result-grouped';
+    renderGroupedBadCases(grid, items);
+  } else {
+    items.forEach(it => grid.appendChild(createResultCard(it, false)));
+  }
+}
+
+function renderGroupedBadCases(container, items){
+  const total = state.items.length;
+  state.categories.forEach(cat => {
+    const members = items.filter(it => (it.subCategoryId || 'misc') === cat.id);
+
+    const section = document.createElement('div');
+    section.className = 'cat-section';
+
+    const header = document.createElement('div');
+    header.className = 'cat-header';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'cat-name-input';
+    nameInput.value = cat.name;
+    nameInput.addEventListener('input', () => { cat.name = nameInput.value || cat.name; saveCategories(); });
+    const countSpan = document.createElement('span');
+    countSpan.className = 'cat-count';
+    const pct = total ? (members.length / total * 100).toFixed(1) : '0.0';
+    countSpan.textContent = `${members.length} 组 · 占全部 ${pct}%`;
+    header.appendChild(nameInput);
+    header.appendChild(countSpan);
+
+    const catGrid = document.createElement('div');
+    catGrid.className = 'result-grid cat-grid';
+    members.forEach(it => catGrid.appendChild(createResultCard(it, true)));
+    if(members.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'empty-hint';
+      empty.style.padding = '18px';
+      empty.textContent = '拖拽卡片到这里归入此类';
+      catGrid.appendChild(empty);
     }
-    grid.appendChild(card);
+
+    section.addEventListener('dragover', e => { e.preventDefault(); section.classList.add('drag-over'); });
+    section.addEventListener('dragleave', () => section.classList.remove('drag-over'));
+    section.addEventListener('drop', e => {
+      e.preventDefault();
+      section.classList.remove('drag-over');
+      const key = e.dataTransfer.getData('text/plain');
+      const it = state.items.find(i => i.key === key);
+      if(it && it.subCategoryId !== cat.id){
+        it.subCategoryId = cat.id;
+        dbPut(sanitizeForDB(it));
+        renderResults();
+      }
+    });
+
+    section.appendChild(header);
+    section.appendChild(catGrid);
+    container.appendChild(section);
   });
 }
+
+/* ---- 按备注关键词归纳 Bad case 二级分类 ---- */
+const CATEGORIES_KEY = 'wearCheckBadCategories';
+function loadCategoriesMeta(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(CATEGORIES_KEY) || 'null');
+    if(saved && Array.isArray(saved.categories)) return saved;
+  }catch(e){}
+  return { categories: [], badGrouped: false };
+}
+function saveCategories(){
+  localStorage.setItem(CATEGORIES_KEY, JSON.stringify({ categories: state.categories, badGrouped: state.badGrouped }));
+}
+
+const NOTE_SPLIT_RE = /[，。,.\s、；;！!？?\/\\|~～\-—()（）\[\]"'“”]+/g;
+function buildKeywordCandidates(items){
+  const freq = new Map(); // 关键词片段 -> 命中的卡片 key 集合
+  const MIN_LEN = 2, MAX_LEN = 6;
+  items.forEach(it => {
+    const cleaned = (it.note || '').replace(NOTE_SPLIT_RE, '');
+    if(!cleaned) return;
+    const seenInThisNote = new Set();
+    for(let len = MAX_LEN; len >= MIN_LEN; len--){
+      for(let i = 0; i + len <= cleaned.length; i++){
+        seenInThisNote.add(cleaned.slice(i, i + len));
+      }
+    }
+    seenInThisNote.forEach(g => {
+      if(!freq.has(g)) freq.set(g, new Set());
+      freq.get(g).add(it.key);
+    });
+  });
+  return Array.from(freq.entries())
+    .filter(([, set]) => set.size >= 2)
+    .map(([text, set]) => ({ text, count: set.size }))
+    .sort((a, b) => b.count - a.count || b.text.length - a.text.length);
+}
+
+function runBadCaseClustering(){
+  const badItems = state.items.filter(it => it.tag === 'bad');
+  if(badItems.length === 0){ alert('还没有标记为 Bad case 的卡片，无法归纳'); return; }
+
+  const candidates = buildKeywordCandidates(badItems);
+  const assigned = new Set();
+  const categories = [];
+  const MAX_CATS = 10;
+
+  for(const cand of candidates){
+    if(categories.length >= MAX_CATS) break;
+    const cleanedOf = it => (it.note || '').replace(NOTE_SPLIT_RE, '');
+    const members = badItems.filter(it => !assigned.has(it.key) && cleanedOf(it).includes(cand.text));
+    if(members.length < 2) continue;
+    const catId = 'cat_' + Math.random().toString(36).slice(2, 8);
+    categories.push({ id: catId, name: cand.text });
+    members.forEach(it => { it.subCategoryId = catId; assigned.add(it.key); dbPut(sanitizeForDB(it)); });
+  }
+
+  const miscMembers = badItems.filter(it => !assigned.has(it.key));
+  if(miscMembers.length){
+    categories.push({ id: 'misc', name: '无明确含义小类' });
+    miscMembers.forEach(it => { it.subCategoryId = 'misc'; dbPut(sanitizeForDB(it)); });
+  }
+
+  state.categories = categories;
+  state.badGrouped = true;
+  saveCategories();
+
+  document.querySelectorAll('#filterPills .pill').forEach(b => b.classList.toggle('active', b.dataset.f === 'bad'));
+  state.filter = 'bad';
+  updateClusterBtnLabel();
+  renderResults();
+}
+
+function updateClusterBtnLabel(){
+  const btn = document.getElementById('btnCluster');
+  btn.textContent = state.badGrouped ? '取消归纳' : '按备注归纳 Bad case';
+}
+document.getElementById('btnCluster').addEventListener('click', () => {
+  if(state.badGrouped){
+    state.badGrouped = false;
+    saveCategories();
+    updateClusterBtnLabel();
+    renderResults();
+  } else {
+    runBadCaseClustering();
+  }
+});
 function tagLabel(tag){
   return tag === 'good' ? 'Good' : tag === 'bad' ? 'Bad' : tag === 'pending' ? 'Medium' : '未标记';
 }
@@ -965,6 +1150,7 @@ function hideOverlay(){ document.getElementById('overlay').classList.remove('sho
 
 /* ================== 启动 ================== */
 renderUploadZones();
+updateClusterBtnLabel();
 
 (async function init(){
   try{
