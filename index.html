@@ -102,6 +102,7 @@ textarea.note{width:100%;min-height:54px;border-radius:9px;border:1px solid var(
 .filter-row{padding:14px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
 .filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
 .pill{border:1px solid var(--line);background:var(--surface);color:var(--ink-dim);font:inherit;font-weight:700;font-size:12px;padding:7px 13px;border-radius:99px;cursor:pointer;}
+.pill-pct{font-variant-numeric:tabular-nums;opacity:.65;font-weight:600;}
 .pill.active{background:var(--ink);color:var(--surface);border-color:var(--ink);}
 .result-grid{padding:20px 22px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
 @media (max-width:600px){.result-grid{grid-template-columns:1fr;}}
@@ -213,11 +214,11 @@ input[type=file]{display:none;}
     </div>
     <div class="filter-row">
       <div class="filter-pills" id="filterPills">
-        <button class="pill active" data-f="all">全部</button>
-        <button class="pill" data-f="bad">仅 Bad case</button>
-        <button class="pill" data-f="good">仅 Good case</button>
-        <button class="pill" data-f="pending">仅 Medium</button>
-        <button class="pill" data-f="marked">只看已标记</button>
+        <button class="pill active" data-f="all">全部 <span class="pill-pct" data-pct="all"></span></button>
+        <button class="pill" data-f="bad">仅 Bad case <span class="pill-pct" data-pct="bad"></span></button>
+        <button class="pill" data-f="good">仅 Good case <span class="pill-pct" data-pct="good"></span></button>
+        <button class="pill" data-f="pending">仅 Medium <span class="pill-pct" data-pct="pending"></span></button>
+        <button class="pill" data-f="marked">只看已标记 <span class="pill-pct" data-pct="marked"></span></button>
       </div>
       <span class="hint" id="filterCount"></span>
     </div>
@@ -721,7 +722,22 @@ function filteredItems(){
   });
 }
 
+function updatePillStats(){
+  const total = state.items.length;
+  const good = state.items.filter(i => i.tag === 'good').length;
+  const bad = state.items.filter(i => i.tag === 'bad').length;
+  const pending = state.items.filter(i => i.tag === 'pending').length;
+  const marked = good + bad + pending;
+  const pct = n => total ? `(${(n / total * 100).toFixed(1)}%)` : '(0.0%)';
+  document.querySelector('[data-pct="all"]').textContent = `(${total})`;
+  document.querySelector('[data-pct="bad"]').textContent = pct(bad);
+  document.querySelector('[data-pct="good"]').textContent = pct(good);
+  document.querySelector('[data-pct="pending"]').textContent = pct(pending);
+  document.querySelector('[data-pct="marked"]').textContent = pct(marked);
+}
+
 function renderResults(){
+  updatePillStats();
   const grid = document.getElementById('resultGrid');
   const items = filteredItems();
   document.getElementById('filterCount').textContent = `共 ${items.length} 组`;
