@@ -229,10 +229,7 @@ input[type=file]{display:none;}
         <div class="title">结果汇总</div>
         <div class="sub">点击任意卡片放大 / 下载，标签可直接改</div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn btn-ghost" id="btnExportLocal">保存到本地</button>
-        <button class="btn btn-primary" id="btnExportGithub">发布到 GitHub 生成链接</button>
-      </div>
+      <button class="btn btn-primary" id="btnExportLocal">导出当前筛选为 HTML</button>
     </div>
     <div class="filter-row">
       <div class="filter-pills" id="filterPills">
@@ -259,32 +256,6 @@ input[type=file]{display:none;}
         <button class="btn btn-ghost btn-sm" id="btnDownload">下载合成图</button>
         <button class="btn btn-ghost btn-sm" id="btnCloseLb">关闭</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<div class="lightbox" id="publishModal">
-  <div class="lightbox-inner" style="max-width:480px;">
-    <div style="font-size:15px;font-weight:800;margin-bottom:4px;">发布到 GitHub</div>
-    <div class="hint" style="margin-bottom:16px;">报告会通过 GitHub API 提交到你仓库的 reports/ 文件夹，成功后生成一个可直接转发的 GitHub Pages 链接。Token 只保存在这台电脑的浏览器里，不会上传到任何地方。</div>
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <label style="font-size:12px;font-weight:700;color:var(--ink-dim);">仓库（owner/repo）
-        <input type="text" id="pubRepo" placeholder="Crystal310/duibi-xiaogongju" style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:13px;">
-      </label>
-      <label style="font-size:12px;font-weight:700;color:var(--ink-dim);">分支
-        <input type="text" id="pubBranch" placeholder="main" style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:13px;">
-      </label>
-      <label style="font-size:12px;font-weight:700;color:var(--ink-dim);">文件夹
-        <input type="text" id="pubFolder" placeholder="reports" style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:13px;">
-      </label>
-      <label style="font-size:12px;font-weight:700;color:var(--ink-dim);">GitHub Token（需要 repo / contents 写权限，建议用只对该仓库授权的 fine-grained token）
-        <input type="password" id="pubToken" placeholder="ghp_xxxxxxxxxxxx" style="width:100%;margin-top:4px;padding:9px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:13px;">
-      </label>
-    </div>
-    <div id="pubStatus" class="hint" style="margin-top:10px;min-height:16px;"></div>
-    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px;">
-      <button class="btn btn-ghost btn-sm" id="btnPublishCancel">取消</button>
-      <button class="btn btn-primary btn-sm" id="btnPublishGo">发布</button>
     </div>
   </div>
 </div>
@@ -756,11 +727,9 @@ document.getElementById('btnDownload').addEventListener('click', async () => {
   }, 'image/jpeg', 0.92);
 });
 
-/* ================== 导出 HTML 报告（本地下载 / 发布到 GitHub 共用） ================== */
+/* ================== 导出 HTML 报告 ================== */
 document.getElementById('btnExportLocal').addEventListener('click', exportReportLocal);
-document.getElementById('btnExportGithub').addEventListener('click', openPublishModal);
 
-// 生成报告 HTML 字符串，供「本地下载」和「发布到 GitHub」两条路径共用
 async function buildExportHTML(){
   const items = filteredItems();
   if(items.length === 0) return null;
@@ -805,89 +774,6 @@ async function exportReportLocal(){
   a.href = URL.createObjectURL(blob);
   a.download = `换装评测报告_${new Date().toISOString().slice(0,10)}.html`;
   a.click();
-}
-
-/* ---- 发布到 GitHub ---- */
-const PUB_CONFIG_KEY = 'ghPublishConfig';
-function loadPubConfig(){
-  try{ return JSON.parse(localStorage.getItem(PUB_CONFIG_KEY) || '{}'); }
-  catch(e){ return {}; }
-}
-function savePubConfig(cfg){
-  localStorage.setItem(PUB_CONFIG_KEY, JSON.stringify(cfg));
-}
-
-function openPublishModal(){
-  const items = filteredItems();
-  if(items.length === 0){ alert('当前筛选下没有可导出的数据'); return; }
-  const cfg = loadPubConfig();
-  document.getElementById('pubRepo').value = cfg.repo || 'Crystal310/duibi-xiaogongju';
-  document.getElementById('pubBranch').value = cfg.branch || 'main';
-  document.getElementById('pubFolder').value = cfg.folder || 'reports';
-  document.getElementById('pubToken').value = cfg.token || '';
-  document.getElementById('pubStatus').textContent = '';
-  document.getElementById('publishModal').classList.add('open');
-}
-document.getElementById('btnPublishCancel').addEventListener('click', () => {
-  document.getElementById('publishModal').classList.remove('open');
-});
-document.getElementById('publishModal').addEventListener('click', e => {
-  if(e.target.id === 'publishModal') e.currentTarget.classList.remove('open');
-});
-
-document.getElementById('btnPublishGo').addEventListener('click', async () => {
-  const repo = document.getElementById('pubRepo').value.trim();
-  const branch = document.getElementById('pubBranch').value.trim() || 'main';
-  const folder = document.getElementById('pubFolder').value.trim().replace(/^\/|\/$/g, '') || 'reports';
-  const token = document.getElementById('pubToken').value.trim();
-  const status = document.getElementById('pubStatus');
-
-  if(!repo.includes('/')){ status.textContent = '仓库格式应为 owner/repo'; return; }
-  if(!token){ status.textContent = '请填写 GitHub Token'; return; }
-
-  savePubConfig({ repo, branch, folder, token });
-
-  status.textContent = '正在生成报告…';
-  const html = await buildExportHTML();
-  if(html === null){ status.textContent = '当前筛选下没有可导出的数据'; return; }
-
-  const filename = `report_${new Date().toISOString().replace(/[:.]/g, '-')}.html`;
-  const path = `${folder}/${filename}`;
-  const [owner, repoName] = repo.split('/');
-
-  status.textContent = '正在提交到 GitHub…';
-  try{
-    const contentB64 = utf8ToBase64(html);
-    const res = await fetch(`https://api.github.com/repos/${owner}/${repoName}/contents/${path}`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${token}`,
-        'Accept': 'application/vnd.github+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: `发布评测报告 ${filename}`,
-        content: contentB64,
-        branch: branch,
-      }),
-    });
-    if(!res.ok){
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || `HTTP ${res.status}`);
-    }
-    const pagesUrl = `https://${owner}.github.io/${repoName}/${path}`;
-    status.innerHTML = `发布成功！GitHub Pages 通常 1-2 分钟内生效：<br><a href="${pagesUrl}" target="_blank" style="color:var(--accent);word-break:break-all;">${pagesUrl}</a>`;
-    try{ await navigator.clipboard.writeText(pagesUrl); status.innerHTML += '<br>（链接已复制到剪贴板）'; }catch(e){}
-  }catch(err){
-    status.textContent = '发布失败：' + err.message;
-  }
-});
-
-function utf8ToBase64(str){
-  const bytes = new TextEncoder().encode(str);
-  let binary = '';
-  bytes.forEach(b => binary += String.fromCharCode(b));
-  return btoa(binary);
 }
 
 function escapeHtml(s){
