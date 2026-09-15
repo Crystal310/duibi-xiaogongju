@@ -120,6 +120,12 @@ textarea.note{width:100%;min-height:54px;border-radius:9px;border:1px solid var(
 .badge.good{background:var(--good-bg);color:var(--good);} .badge.bad{background:var(--bad-bg);color:var(--bad);} .badge.pending{background:var(--pending-bg);color:var(--pending);} .badge.none{background:var(--line);color:var(--ink-dim);}
 .export-row{padding:14px 22px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;color:var(--ink-dim);font-size:12px;}
 
+.tag-menu{position:fixed;z-index:80;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.16);padding:6px;display:flex;flex-direction:column;gap:3px;min-width:110px;}
+.tag-menu-opt{border:none;background:transparent;text-align:left;font:inherit;font-weight:800;font-size:13px;padding:8px 10px;border-radius:7px;cursor:pointer;color:var(--ink-dim);}
+.tag-menu-opt.good:hover{background:var(--good-bg);color:var(--good);}
+.tag-menu-opt.bad:hover{background:var(--bad-bg);color:var(--bad);}
+.tag-menu-opt.pending:hover{background:var(--pending-bg);color:var(--pending);}
+
 /* Bad case 归纳分组 */
 .result-grouped{padding:20px 22px;display:flex;flex-direction:column;gap:26px;}
 .cat-section{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 4px 4px;transition:outline .1s;}
@@ -785,8 +791,7 @@ function createResultCard(it, draggable){
   meta.innerHTML = `<span class="fname">${escapeHtml(it.key)}</span><button class="badge ${it.tag || 'none'}" data-key="${it.key}">${tagLabel(it.tag)}</button>`;
   meta.querySelector('button').addEventListener('click', ev => {
     ev.stopPropagation();
-    cycleTag(it);
-    renderResults();
+    openTagMenu(ev.currentTarget, it);
   });
 
   const noteBox = document.createElement('textarea');
@@ -973,12 +978,40 @@ document.getElementById('btnCluster').addEventListener('click', () => {
 function tagLabel(tag){
   return tag === 'good' ? 'Good' : tag === 'bad' ? 'Bad' : tag === 'pending' ? 'Medium' : '未标记';
 }
-function cycleTag(it){
-  const order = [null, 'good', 'bad', 'pending'];
-  const next = order[(order.indexOf(it.tag) + 1) % order.length];
-  it.tag = next;
-  dbPut(sanitizeForDB(it));
-  renderStats();
+function closeTagMenu(){
+  const existing = document.getElementById('activeTagMenu');
+  if(existing) existing.remove();
+  document.removeEventListener('click', onDocClickCloseTagMenu, true);
+}
+function onDocClickCloseTagMenu(e){
+  const menu = document.getElementById('activeTagMenu');
+  if(menu && !menu.contains(e.target)) closeTagMenu();
+}
+function openTagMenu(anchorEl, it){
+  closeTagMenu();
+  const menu = document.createElement('div');
+  menu.className = 'tag-menu';
+  menu.id = 'activeTagMenu';
+  [['good', 'Good'], ['bad', 'Bad'], ['pending', 'Medium']].forEach(([tag, label]) => {
+    const opt = document.createElement('button');
+    opt.className = 'tag-menu-opt ' + tag;
+    opt.textContent = label;
+    opt.addEventListener('click', ev => {
+      ev.stopPropagation();
+      it.tag = tag;
+      dbPut(sanitizeForDB(it));
+      closeTagMenu();
+      renderResults();
+      renderStats();
+    });
+    menu.appendChild(opt);
+  });
+  document.body.appendChild(menu);
+  const rect = anchorEl.getBoundingClientRect();
+  const menuRect = menu.getBoundingClientRect();
+  menu.style.top = Math.min(rect.bottom + 4, window.innerHeight - menuRect.height - 8) + 'px';
+  menu.style.left = Math.min(rect.left, window.innerWidth - menuRect.width - 8) + 'px';
+  setTimeout(() => document.addEventListener('click', onDocClickCloseTagMenu, true), 0);
 }
 
 /* ---- 放大预览 / 下载 ---- */
@@ -1058,37 +1091,27 @@ async function buildExportHTML(){
   if(items.length === 0) return null;
   showOverlay(`正在生成报告（${items.length} 组）…`);
 
-  const zoneCount = Math.max(state.zones.length, 1);
-  const rows = [];
+  const zoneNames = state.zones.map(z => z.name);
+  const dataItems = [];
   for(const it of items){
-    const cells = await Promise.all(state.zones.map(async z => {
+    const imgs = await Promise.all(state.zones.map(async z => {
       const entry = it.values[z.id];
-      if(!entry) return `<div class="cell missing">缺 ${escapeHtml(z.name)}</div>`;
-      const dataUrl = await blobToDataURL(entry.blob);
-      return `<div class="cell"><img src="${dataUrl}"></div>`;
+      if(!entry) return null;
+      return await blobToDataURL(entry.blob);
     }));
-    rows.push(`
-      <div class="rcard" data-tag="${it.tag || ''}">
-        <div class="triplerow" style="grid-template-columns:repeat(${zoneCount},1fr);">${cells.join('')}</div>
-        <div class="meta"><span class="fname">${escapeHtml(it.key)}</span><span class="badge ${it.tag || 'none'}">${tagLabel(it.tag)}</span></div>
-        ${it.note ? `<div class="note">${escapeHtml(it.note)}</div>` : ''}
-      </div>`);
+    dataItems.push({ key: it.key, tag: it.tag || null, note: it.note || '', cat: it.subCategoryId || null, imgs });
   }
 
-  const total = state.items.length;
-  const good = state.items.filter(i => i.tag === 'good').length;
-  const bad = state.items.filter(i => i.tag === 'bad').length;
-  const pending = state.items.filter(i => i.tag === 'pending').length;
-  const pct = n => total ? Math.round(n / total * 100) + '%' : '0%';
-
   const title = (document.getElementById('reportTitleInput').value || '').trim() || '图片对比评测报告';
+  const categories = (state.badGrouped ? state.categories : []).map(c => ({ id: c.id, name: c.name }));
 
   const html = buildReportHTML({
     title,
-    rows: rows.join('\n'),
-    good: pct(good), bad: pct(bad), pending: pct(pending),
-    count: items.length, total,
-    filterName: { all: '全部', bad: '仅 Bad case', good: '仅 Good case', pending: '仅 Medium', marked: '只看已标记' }[state.filter],
+    zoneNames,
+    items: dataItems,
+    categories,
+    totalAll: state.items.length,
+    initialFilter: state.filter,
   });
   hideOverlay();
   return html;
@@ -1110,41 +1133,181 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 
-function buildReportHTML({ title, rows, good, bad, pending, count, total, filterName }){
+function buildReportHTML({ title, zoneNames, items, categories, totalAll, initialFilter }){
+  const safeTitle = escapeHtml(title);
+  const dataJson = JSON.stringify(items).replace(/<\//g, '<\\/');
+  const zoneNamesJson = JSON.stringify(zoneNames).replace(/<\//g, '<\\/');
+  const categoriesJson = JSON.stringify(categories).replace(/<\//g, '<\\/');
+  const filterJson = JSON.stringify(initialFilter || 'all');
+
+  // 内层脚本用普通引号 + 字符串拼接书写（不用反引号/${}），
+  // 这样可以直接拼进本函数自己的反引号模板字符串里，不用互相转义
+  const innerScript = [
+    'var DATA = ' + dataJson + ';',
+    'var ZONE_NAMES = ' + zoneNamesJson + ';',
+    'var CATEGORIES = ' + categoriesJson + ';',
+    'var TOTAL_ALL = ' + totalAll + ';',
+    'var currentFilter = ' + filterJson + ';',
+    '',
+    'function tagLabel(tag){ return tag === "good" ? "Good" : tag === "bad" ? "Bad" : tag === "pending" ? "Medium" : "未标记"; }',
+    '',
+    'function computeStats(){',
+    '  var total = DATA.length;',
+    '  var good = DATA.filter(function(i){ return i.tag === "good"; }).length;',
+    '  var bad = DATA.filter(function(i){ return i.tag === "bad"; }).length;',
+    '  var pending = DATA.filter(function(i){ return i.tag === "pending"; }).length;',
+    '  var pct = function(n){ return total ? Math.round(n / total * 100) + "%" : "0%"; };',
+    '  document.getElementById("statGood").textContent = pct(good);',
+    '  document.getElementById("statBad").textContent = pct(bad);',
+    '  document.getElementById("statPending").textContent = pct(pending);',
+    '  document.getElementById("subLine").textContent = "本报告包含 " + total + " 组（原始数据共 " + TOTAL_ALL + " 组）";',
+    '}',
+    '',
+    'function updatePillStats(){',
+    '  var total = DATA.length;',
+    '  var good = DATA.filter(function(i){ return i.tag === "good"; }).length;',
+    '  var bad = DATA.filter(function(i){ return i.tag === "bad"; }).length;',
+    '  var pending = DATA.filter(function(i){ return i.tag === "pending"; }).length;',
+    '  var marked = good + bad + pending;',
+    '  var pct = function(n){ return total ? "(" + (n / total * 100).toFixed(1) + "%)" : "(0.0%)"; };',
+    '  document.querySelector("[data-pct=\\"all\\"]").textContent = "(" + total + ")";',
+    '  document.querySelector("[data-pct=\\"bad\\"]").textContent = pct(bad);',
+    '  document.querySelector("[data-pct=\\"good\\"]").textContent = pct(good);',
+    '  document.querySelector("[data-pct=\\"pending\\"]").textContent = pct(pending);',
+    '  document.querySelector("[data-pct=\\"marked\\"]").textContent = pct(marked);',
+    '}',
+    '',
+    'function filteredData(){',
+    '  return DATA.filter(function(it){',
+    '    if(currentFilter === "bad") return it.tag === "bad";',
+    '    if(currentFilter === "good") return it.tag === "good";',
+    '    if(currentFilter === "pending") return it.tag === "pending";',
+    '    if(currentFilter === "marked") return !!it.tag;',
+    '    return true;',
+    '  });',
+    '}',
+    '',
+    'function createCard(it){',
+    '  var card = document.createElement("div");',
+    '  card.className = "rcard";',
+    '  var row = document.createElement("div");',
+    '  row.className = "triplerow";',
+    '  row.style.gridTemplateColumns = "repeat(" + Math.max(ZONE_NAMES.length, 1) + ",1fr)";',
+    '  ZONE_NAMES.forEach(function(name, i){',
+    '    var cell = document.createElement("div");',
+    '    cell.className = "cell";',
+    '    var src = it.imgs[i];',
+    '    if(src){ var img = document.createElement("img"); img.src = src; cell.appendChild(img); }',
+    '    else { cell.textContent = "缺 " + name; }',
+    '    row.appendChild(cell);',
+    '  });',
+    '  var meta = document.createElement("div");',
+    '  meta.className = "meta";',
+    '  var fname = document.createElement("span");',
+    '  fname.className = "fname"; fname.textContent = it.key;',
+    '  var badge = document.createElement("span");',
+    '  badge.className = "badge " + (it.tag || "none"); badge.textContent = tagLabel(it.tag);',
+    '  meta.appendChild(fname); meta.appendChild(badge);',
+    '  card.appendChild(row); card.appendChild(meta);',
+    '  if(it.note){ var noteEl = document.createElement("div"); noteEl.className = "note"; noteEl.textContent = it.note; card.appendChild(noteEl); }',
+    '  return card;',
+    '}',
+    '',
+    'function render(){',
+    '  updatePillStats();',
+    '  document.querySelectorAll("#pills .pill").forEach(function(b){ b.classList.toggle("active", b.dataset.f === currentFilter); });',
+    '  var items = filteredData();',
+    '  var body = document.getElementById("body");',
+    '  body.innerHTML = "";',
+    '  if(items.length === 0){ var empty = document.createElement("div"); empty.className = "empty-hint"; empty.textContent = "没有符合条件的图片"; body.appendChild(empty); return; }',
+    '  if(currentFilter === "bad" && CATEGORIES.length){',
+    '    CATEGORIES.forEach(function(cat){',
+    '      var members = items.filter(function(it){ return (it.cat || "misc") === cat.id; });',
+    '      var section = document.createElement("div"); section.className = "cat-section";',
+    '      var header = document.createElement("div"); header.className = "cat-header";',
+    '      var nameEl = document.createElement("span"); nameEl.className = "cat-name"; nameEl.textContent = cat.name;',
+    '      var pct = TOTAL_ALL ? (members.length / TOTAL_ALL * 100).toFixed(1) : "0.0";',
+    '      var countEl = document.createElement("span"); countEl.className = "cat-count"; countEl.textContent = members.length + " 组 · 占全部 " + pct + "%";',
+    '      header.appendChild(nameEl); header.appendChild(countEl);',
+    '      var catGrid = document.createElement("div"); catGrid.className = "cat-grid";',
+    '      if(members.length === 0){ var e2 = document.createElement("div"); e2.className = "empty-hint"; e2.textContent = "（此分类下没有卡片）"; catGrid.appendChild(e2); }',
+    '      else members.forEach(function(it){ catGrid.appendChild(createCard(it)); });',
+    '      section.appendChild(header); section.appendChild(catGrid);',
+    '      body.appendChild(section);',
+    '    });',
+    '  } else {',
+    '    var grid = document.createElement("div"); grid.className = "grid";',
+    '    items.forEach(function(it){ grid.appendChild(createCard(it)); });',
+    '    body.appendChild(grid);',
+    '  }',
+    '}',
+    '',
+    'document.querySelectorAll("#pills .pill").forEach(function(btn){',
+    '  btn.addEventListener("click", function(){ currentFilter = btn.dataset.f; render(); });',
+    '});',
+    '',
+    'computeStats();',
+    'render();',
+  ].join('\n');
+
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
-<title>${escapeHtml(title)}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${safeTitle}</title>
 <style>
-body{margin:0;background:#f2f1ed;color:#1c1b19;font-family:-apple-system,'PingFang SC',system-ui,sans-serif;padding:24px 16px 60px;}
-.wrap{max-width:1100px;margin:0 auto;}
+:root{--bg:#f2f1ed;--surface:#fff;--surface-2:#fafaf7;--ink:#1c1b19;--ink-dim:#6b6863;--line:#e2e0d9;
+  --good:#2f8a5b;--good-bg:#e5f3ea;--bad:#c4402f;--bad-bg:#fbe8e5;--pending:#b9862a;--pending-bg:#faf0dd;}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'PingFang SC',system-ui,sans-serif;padding:24px 16px 60px;}
+.wrap{max-width:1200px;margin:0 auto;}
 h1{font-size:22px;margin:0 0 4px;}
-.sub{color:#6b6863;font-size:13px;margin-bottom:18px;}
+.sub{color:var(--ink-dim);font-size:13px;margin-bottom:18px;}
 .stat-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
-.stat{background:#fff;border:1px solid #e2e0d9;border-radius:10px;padding:10px 16px;font-size:13px;}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 16px;font-size:13px;}
 .stat b{font-size:20px;display:block;font-variant-numeric:tabular-nums;}
-.stat.good b{color:#2f8a5b;} .stat.bad b{color:#c4402f;} .stat.pending b{color:#b9862a;}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-@media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:600px){.grid{grid-template-columns:1fr;}}
-.rcard{background:#fafaf7;border:1px solid #e2e0d9;border-radius:12px;overflow:hidden;}
-.triplerow{display:grid;gap:2px;background:#e2e0d9;}
-.triplerow .cell{aspect-ratio:3/4;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;color:#6b6863;}
+.stat.good b{color:var(--good);} .stat.bad b{color:var(--bad);} .stat.pending b{color:var(--pending);}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.pill{border:1px solid var(--line);background:var(--surface);color:var(--ink-dim);font:inherit;font-weight:700;font-size:12px;padding:7px 13px;border-radius:99px;cursor:pointer;}
+.pill.active{background:var(--ink);color:var(--surface);border-color:var(--ink);}
+.pill-pct{opacity:.65;font-variant-numeric:tabular-nums;}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.cat-section{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 4px 4px;margin-bottom:26px;}
+.cat-header{display:flex;align-items:baseline;gap:8px;padding:0 14px 12px;flex-wrap:wrap;}
+.cat-name{font-size:14px;font-weight:800;}
+.cat-count{font-size:11.5px;color:var(--ink-dim);font-variant-numeric:tabular-nums;}
+.cat-grid{display:flex;flex-wrap:wrap;gap:14px;padding:0 14px 14px;}
+.rcard{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;overflow:hidden;width:260px;flex:0 0 260px;}
+.grid .rcard{width:auto;flex:none;}
+.triplerow{display:grid;gap:2px;background:var(--line);}
+.triplerow .cell{aspect-ratio:3/4;background:var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;color:var(--ink-dim);}
 .triplerow img{width:100%;height:100%;object-fit:contain;}
 .meta{padding:9px 12px;display:flex;justify-content:space-between;align-items:center;font-size:11px;}
-.fname{font-family:ui-monospace,monospace;color:#6b6863;}
+.fname{font-family:ui-monospace,monospace;color:var(--ink-dim);}
 .badge{font-size:11px;font-weight:800;padding:3px 9px;border-radius:99px;}
-.badge.good{background:#e5f3ea;color:#2f8a5b;} .badge.bad{background:#fbe8e5;color:#c4402f;} .badge.pending{background:#faf0dd;color:#b9862a;} .badge.none{background:#e2e0d9;color:#6b6863;}
-.note{padding:0 12px 12px;font-size:12px;color:#6b6863;}
+.badge.good{background:var(--good-bg);color:var(--good);} .badge.bad{background:var(--bad-bg);color:var(--bad);} .badge.pending{background:var(--pending-bg);color:var(--pending);} .badge.none{background:var(--line);color:var(--ink-dim);}
+.note{padding:0 12px 12px;font-size:12px;color:var(--ink-dim);line-height:1.5;}
+.empty-hint{color:var(--ink-dim);font-size:13px;padding:40px;text-align:center;}
 </style></head>
 <body><div class="wrap">
-<h1>${escapeHtml(title)}</h1>
-<div class="sub">导出范围：${filterName} · 共 ${count} 组（全量数据共 ${total} 组）</div>
+<h1>${safeTitle}</h1>
+<div class="sub" id="subLine"></div>
 <div class="stat-row">
-  <div class="stat good">Good case 率<b>${good}</b></div>
-  <div class="stat bad">Bad case 率<b>${bad}</b></div>
-  <div class="stat pending">Medium 中等可通过率<b>${pending}</b></div>
+  <div class="stat good">Good case 率<b id="statGood">0%</b></div>
+  <div class="stat bad">Bad case 率<b id="statBad">0%</b></div>
+  <div class="stat pending">Medium 中等可通过率<b id="statPending">0%</b></div>
 </div>
-<div class="grid">${rows}</div>
-</div></body></html>`;
+<div class="filter-pills" id="pills">
+  <button class="pill" data-f="all">全部 <span class="pill-pct" data-pct="all"></span></button>
+  <button class="pill" data-f="bad">仅 Bad case <span class="pill-pct" data-pct="bad"></span></button>
+  <button class="pill" data-f="good">仅 Good case <span class="pill-pct" data-pct="good"></span></button>
+  <button class="pill" data-f="pending">仅 Medium <span class="pill-pct" data-pct="pending"></span></button>
+  <button class="pill" data-f="marked">只看已标记 <span class="pill-pct" data-pct="marked"></span></button>
+</div>
+<div id="body"></div>
+</div>
+<script>
+${innerScript}
+</script>
+</body></html>`;
 }
 
 /* ================== 遮罩 ================== */
