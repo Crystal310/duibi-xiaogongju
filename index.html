@@ -124,11 +124,12 @@ textarea.note{width:100%;min-height:54px;border-radius:9px;border:1px solid var(
 .result-grouped{padding:20px 22px;display:flex;flex-direction:column;gap:26px;}
 .cat-section{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 4px 4px;transition:outline .1s;}
 .cat-section.drag-over{outline:2px dashed var(--accent);outline-offset:-2px;}
-.cat-header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 14px 12px;flex-wrap:wrap;}
+.cat-header{display:flex;align-items:baseline;gap:8px;padding:0 14px 12px;flex-wrap:wrap;}
 .cat-name-input{font-size:14px;font-weight:800;border:none;background:transparent;color:var(--ink);font-family:inherit;padding:2px 4px;border-radius:5px;min-width:80px;}
 .cat-name-input:hover,.cat-name-input:focus{background:var(--surface-2);outline:1px solid var(--line);}
 .cat-count{font-size:11.5px;color:var(--ink-dim);font-variant-numeric:tabular-nums;white-space:nowrap;}
-.cat-grid{padding:0 14px 14px;}
+.cat-grid{display:flex;flex-wrap:wrap;gap:14px;padding:0 14px 14px;}
+.cat-grid .rcard{width:260px;flex:0 0 260px;}
 
 /* lightbox */
 .lightbox{position:fixed;inset:0;background:rgba(10,10,10,.82);display:none;align-items:center;justify-content:center;z-index:50;padding:24px;}
@@ -839,7 +840,12 @@ function renderGroupedBadCases(container, items){
     const nameInput = document.createElement('input');
     nameInput.className = 'cat-name-input';
     nameInput.value = cat.name;
-    nameInput.addEventListener('input', () => { cat.name = nameInput.value || cat.name; saveCategories(); });
+    nameInput.style.width = (nameInput.value.length + 1) + 'ch';
+    nameInput.addEventListener('input', () => {
+      cat.name = nameInput.value || cat.name;
+      nameInput.style.width = (nameInput.value.length + 1) + 'ch';
+      saveCategories();
+    });
     const countSpan = document.createElement('span');
     countSpan.className = 'cat-count';
     const pct = total ? (members.length / total * 100).toFixed(1) : '0.0';
@@ -848,7 +854,7 @@ function renderGroupedBadCases(container, items){
     header.appendChild(countSpan);
 
     const catGrid = document.createElement('div');
-    catGrid.className = 'result-grid cat-grid';
+    catGrid.className = 'cat-grid';
     members.forEach(it => catGrid.appendChild(createResultCard(it, true)));
     if(members.length === 0){
       const empty = document.createElement('div');
