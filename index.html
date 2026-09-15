@@ -137,7 +137,6 @@ input[type=file]{display:none;}
     <div>
       <div class="kicker">批量图片对比评测工具</div>
       <h1>批量图片对比评测台</h1>
-      <p>上传 1~5 组素材（可自定义名字）→ 按文件名前缀自动配对 → 逐条标记通过 / 不通过 / 待定并写评语 → 生成可筛选、可导出的结果页。数据保存在浏览器本地，刷新不丢失。</p>
     </div>
     <div class="tabs">
       <button class="tab active" data-target="p1">① 上传</button>
@@ -173,7 +172,7 @@ input[type=file]{display:none;}
     <div class="stat-row">
       <div class="stat good"><div class="n" id="statGoodPct">0%</div><div class="l">Good case 率</div></div>
       <div class="stat bad"><div class="n" id="statBadPct">0%</div><div class="l">Bad case 率</div></div>
-      <div class="stat pending"><div class="n" id="statPendingPct">0%</div><div class="l">待定比例</div></div>
+      <div class="stat pending"><div class="n" id="statPendingPct">0%</div><div class="l">Medium 中等可通过率</div></div>
       <div class="stat"><div class="n" id="statMarked">0 / 0</div><div class="l">已标记 / 总数</div></div>
     </div>
     <div class="review-layout">
@@ -187,7 +186,7 @@ input[type=file]{display:none;}
         <div class="tagbar">
           <button class="tagbtn" data-tag="good">✓ 通过</button>
           <button class="tagbtn" data-tag="bad">✕ 不通过</button>
-          <button class="tagbtn" data-tag="pending">? 待定</button>
+          <button class="tagbtn" data-tag="pending">? Medium 中等可通过</button>
         </div>
         <div class="note-label">评语</div>
         <textarea class="note" id="curNote" placeholder="记录具体问题，例如：领口褶皱穿模、袖长比例失真…"></textarea>
@@ -207,7 +206,10 @@ input[type=file]{display:none;}
         <div class="title">结果汇总</div>
         <div class="sub">点击任意卡片放大 / 下载，标签可直接改</div>
       </div>
-      <button class="btn btn-primary" id="btnExportLocal">导出当前筛选为 HTML</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="reportTitleInput" placeholder="报告标题（导出时显示在页面顶部，默认「图片对比评测报告」）" style="width:280px;max-width:40vw;padding:9px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:12.5px;">
+        <button class="btn btn-primary" id="btnExportLocal">导出当前筛选为 HTML</button>
+      </div>
     </div>
     <div class="filter-row">
       <div class="filter-pills" id="filterPills">
@@ -230,7 +232,7 @@ input[type=file]{display:none;}
       <div style="display:flex;gap:8px;align-items:center;">
         <button class="badge good" data-tag="good">✓ 通过</button>
         <button class="badge bad" data-tag="bad">✕ 不通过</button>
-        <button class="badge pending" data-tag="pending">? 待定</button>
+        <button class="badge pending" data-tag="pending">? Medium</button>
         <button class="btn btn-ghost btn-sm" id="btnDownload">下载合成图</button>
         <button class="btn btn-ghost btn-sm" id="btnCloseLb">关闭</button>
       </div>
@@ -760,7 +762,7 @@ function renderResults(){
   });
 }
 function tagLabel(tag){
-  return tag === 'good' ? 'Good' : tag === 'bad' ? 'Bad' : tag === 'pending' ? '待定' : '未标记';
+  return tag === 'good' ? 'Good' : tag === 'bad' ? 'Bad' : tag === 'pending' ? 'Medium' : '未标记';
 }
 function cycleTag(it){
   const order = [null, 'good', 'bad', 'pending'];
@@ -870,7 +872,10 @@ async function buildExportHTML(){
   const pending = state.items.filter(i => i.tag === 'pending').length;
   const pct = n => total ? Math.round(n / total * 100) + '%' : '0%';
 
+  const title = (document.getElementById('reportTitleInput').value || '').trim() || '图片对比评测报告';
+
   const html = buildReportHTML({
+    title,
     rows: rows.join('\n'),
     good: pct(good), bad: pct(bad), pending: pct(pending),
     count: items.length, total,
@@ -883,10 +888,12 @@ async function buildExportHTML(){
 async function exportReportLocal(){
   const html = await buildExportHTML();
   if(html === null){ alert('当前筛选下没有可导出的数据'); return; }
+  const title = (document.getElementById('reportTitleInput').value || '').trim() || '图片对比评测报告';
+  const safeName = title.replace(/[\\/:*?"<>|]/g, '').trim() || '图片对比评测报告';
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `图片对比评测报告_${new Date().toISOString().slice(0,10)}.html`;
+  a.download = `${safeName}_${new Date().toISOString().slice(0,10)}.html`;
   a.click();
 }
 
@@ -894,9 +901,9 @@ function escapeHtml(s){
   return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 
-function buildReportHTML({ rows, good, bad, pending, count, total, filterName }){
+function buildReportHTML({ title, rows, good, bad, pending, count, total, filterName }){
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
-<title>图片对比评测报告</title>
+<title>${escapeHtml(title)}</title>
 <style>
 body{margin:0;background:#f2f1ed;color:#1c1b19;font-family:-apple-system,'PingFang SC',system-ui,sans-serif;padding:24px 16px 60px;}
 .wrap{max-width:1100px;margin:0 auto;}
@@ -904,7 +911,8 @@ h1{font-size:22px;margin:0 0 4px;}
 .sub{color:#6b6863;font-size:13px;margin-bottom:18px;}
 .stat-row{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
 .stat{background:#fff;border:1px solid #e2e0d9;border-radius:10px;padding:10px 16px;font-size:13px;}
-.stat b{font-size:17px;display:block;}
+.stat b{font-size:20px;display:block;font-variant-numeric:tabular-nums;}
+.stat.good b{color:#2f8a5b;} .stat.bad b{color:#c4402f;} .stat.pending b{color:#b9862a;}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:600px){.grid{grid-template-columns:1fr;}}
@@ -919,12 +927,12 @@ h1{font-size:22px;margin:0 0 4px;}
 .note{padding:0 12px 12px;font-size:12px;color:#6b6863;}
 </style></head>
 <body><div class="wrap">
-<h1>图片对比评测报告</h1>
-<div class="sub">导出范围：${filterName} · 共 ${count} 组（全量数据 Good ${good} / Bad ${bad} / 待定 ${pending}，共 ${total} 组）</div>
+<h1>${escapeHtml(title)}</h1>
+<div class="sub">导出范围：${filterName} · 共 ${count} 组（全量数据共 ${total} 组）</div>
 <div class="stat-row">
-  <div class="stat">Good case 率<b>${good}</b></div>
-  <div class="stat">Bad case 率<b>${bad}</b></div>
-  <div class="stat">待定比例<b>${pending}</b></div>
+  <div class="stat good">Good case 率<b>${good}</b></div>
+  <div class="stat bad">Bad case 率<b>${bad}</b></div>
+  <div class="stat pending">Medium 中等可通过率<b>${pending}</b></div>
 </div>
 <div class="grid">${rows}</div>
 </div></body></html>`;
