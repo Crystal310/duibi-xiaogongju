@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>换装效果评测台</title>
+<title>批量图片对比评测台</title>
 <style>
 :root{
   --bg:#f2f1ed; --surface:#ffffff; --surface-2:#fafaf7; --ink:#1c1b19; --ink-dim:#6b6863;
@@ -17,7 +17,7 @@
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'PingFang SC','Hiragino Sans GB',system-ui,sans-serif;padding:24px 16px 64px;}
-.wrap{max-width:1200px;margin:0 auto;}
+.wrap{max-width:none;margin:0;}
 .masthead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:20px;}
 .masthead .kicker{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-dim);font-weight:700;margin-bottom:6px;}
 .masthead h1{font-size:24px;font-weight:800;margin:0;}
@@ -39,11 +39,15 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'P
 .btn-sm{padding:6px 12px;font-size:12px;border-radius:7px;}
 
 /* page1 */
-.upload-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
-@media (max-width:820px){.upload-grid{grid-template-columns:1fr;}}
-.dropzone{border:2px dashed var(--line);border-radius:14px;background:var(--surface-2);padding:18px;display:flex;flex-direction:column;gap:10px;min-height:230px;transition:border-color .15s,background .15s;}
+.upload-grid{display:flex;flex-wrap:wrap;gap:16px;}
+.dropzone{flex:1 1 260px;max-width:360px;border:2px dashed var(--line);border-radius:14px;background:var(--surface-2);padding:18px;display:flex;flex-direction:column;gap:10px;min-height:230px;transition:border-color .15s,background .15s;position:relative;}
 .dropzone.dragover{border-color:var(--accent);background:var(--good-bg);}
-.dropzone .dz-label{font-size:14.5px;font-weight:800;}
+.dz-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.dz-label-input{font-size:14.5px;font-weight:800;border:none;background:transparent;color:var(--ink);font-family:inherit;padding:2px 4px;border-radius:5px;flex:1;min-width:0;}
+.dz-label-input:hover,.dz-label-input:focus{background:var(--surface);outline:1px solid var(--line);}
+.dz-remove{border:none;background:transparent;color:var(--ink-dim);cursor:pointer;font-size:15px;width:24px;height:24px;border-radius:50%;flex-shrink:0;line-height:1;}
+.dz-remove:hover{background:var(--bad-bg);color:var(--bad);}
+.dz-remove:disabled{opacity:.25;cursor:not-allowed;}
 .dropzone .dz-hint{font-size:12px;color:var(--ink-dim);}
 .dz-drop{flex:1;border-radius:10px;border:1px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--ink-dim);font-size:12.5px;text-align:center;padding:12px;cursor:pointer;min-height:90px;}
 .dz-thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;max-height:120px;overflow:auto;}
@@ -51,6 +55,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'P
 .dz-progress-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--ink-dim);font-variant-numeric:tabular-nums;}
 .dz-bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden;}
 .dz-bar>span{display:block;height:100%;background:var(--accent);border-radius:99px;width:0%;}
+.dz-add{flex:1 1 260px;max-width:360px;min-height:230px;border:2px dashed var(--line);border-radius:14px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--ink-dim);cursor:pointer;font-size:13px;font-weight:700;}
+.dz-add:hover{border-color:var(--accent);color:var(--accent);}
+.dz-add .plus{font-size:26px;line-height:1;}
 .match-note{margin-top:18px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-size:12.5px;color:var(--ink-dim);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
 .match-note b{color:var(--ink);}
 
@@ -68,11 +75,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'P
 .nav-row .fname{font-size:12.5px;color:var(--ink-dim);font-family:ui-monospace,monospace;}
 .navbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);cursor:pointer;font-size:15px;color:var(--ink);}
 .navbtn:disabled{opacity:.35;cursor:not-allowed;}
-.triple{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.triple{display:grid;gap:10px;margin-bottom:16px;}
 .triple .cell{aspect-ratio:3/4;border-radius:10px;background:var(--surface-2);position:relative;overflow:hidden;border:1px solid var(--line);}
 .triple .cell img{width:100%;height:100%;object-fit:contain;}
 .triple .cell .cap{position:absolute;left:6px;bottom:6px;font-size:10.5px;font-weight:800;background:rgba(0,0,0,.55);color:#fff;padding:2px 7px;border-radius:99px;}
-.triple .cell.missing{display:flex;align-items:center;justify-content:center;color:var(--ink-dim);font-size:12px;}
+.triple .cell.missing{display:flex;align-items:center;justify-content:center;color:var(--ink-dim);font-size:12px;text-align:center;padding:8px;}
 .tagbar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
 .tagbtn{flex:1;min-width:100px;padding:11px;border-radius:9px;border:1.5px solid var(--line);background:var(--surface);font:inherit;font-weight:800;font-size:13px;cursor:pointer;color:var(--ink-dim);}
 .tagbtn[data-tag="good"].picked{border-color:var(--good);color:var(--good);background:var(--good-bg);}
@@ -80,7 +87,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,'P
 .tagbtn[data-tag="pending"].picked{border-color:var(--pending);color:var(--pending);background:var(--pending-bg);}
 .note-label{font-size:11px;font-weight:700;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
 textarea.note{width:100%;min-height:70px;border-radius:9px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font:inherit;font-size:13px;padding:10px;resize:vertical;}
-.review-side{background:var(--surface-2);display:flex;flex-direction:column;max-height:720px;}
+.review-side{background:var(--surface-2);display:flex;flex-direction:column;max-height:80vh;}
 .side-hd{padding:14px 16px;border-bottom:1px solid var(--line);font-size:11px;font-weight:800;color:var(--ink-dim);text-transform:uppercase;letter-spacing:.04em;}
 .side-list{overflow:auto;padding:8px;display:flex;flex-direction:column;gap:3px;}
 .side-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:12px;border:1px solid transparent;}
@@ -96,11 +103,10 @@ textarea.note{width:100%;min-height:70px;border-radius:9px;border:1px solid var(
 .filter-pills{display:flex;gap:6px;flex-wrap:wrap;}
 .pill{border:1px solid var(--line);background:var(--surface);color:var(--ink-dim);font:inherit;font-weight:700;font-size:12px;padding:7px 13px;border-radius:99px;cursor:pointer;}
 .pill.active{background:var(--ink);color:var(--surface);border-color:var(--ink);}
-.result-grid{padding:20px 22px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
-@media (max-width:900px){.result-grid{grid-template-columns:repeat(2,1fr);}}
+.result-grid{padding:20px 22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
 @media (max-width:600px){.result-grid{grid-template-columns:1fr;}}
 .rcard{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface-2);}
-.rcard .triplerow{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--line);cursor:zoom-in;}
+.rcard .triplerow{display:grid;gap:2px;background:var(--line);cursor:zoom-in;}
 .rcard .triplerow .cell{aspect-ratio:3/4;background:var(--surface);overflow:hidden;}
 .rcard .triplerow .cell img{width:100%;height:100%;object-fit:contain;}
 .rcard .meta{padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
@@ -114,8 +120,8 @@ textarea.note{width:100%;min-height:70px;border-radius:9px;border:1px solid var(
 .lightbox{position:fixed;inset:0;background:rgba(10,10,10,.82);display:none;align-items:center;justify-content:center;z-index:50;padding:24px;}
 .lightbox.open{display:flex;}
 .lightbox-inner{background:var(--surface);border-radius:14px;max-width:min(1100px,96vw);max-height:92vh;overflow:auto;padding:20px;}
-.lightbox-imgs{display:flex;gap:10px;margin-bottom:14px;}
-.lightbox-imgs .cell{flex:1;background:var(--surface-2);border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+.lightbox-imgs{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.lightbox-imgs .cell{flex:1;min-width:120px;background:var(--surface-2);border-radius:8px;overflow:hidden;border:1px solid var(--line);}
 .lightbox-imgs img{width:100%;display:block;object-fit:contain;max-height:60vh;margin:0 auto;}
 .lightbox-tools{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
 .hint{font-size:11.5px;color:var(--ink-dim);}
@@ -129,9 +135,9 @@ input[type=file]{display:none;}
 <div class="wrap">
   <div class="masthead">
     <div>
-      <div class="kicker">批量图片评测工具</div>
-      <h1>换装效果评测台</h1>
-      <p>上传原图 / 服装图 / 结果图 → 按文件名前缀自动配对 → 逐条标记通过 / 不通过 / 待定并写评语 → 生成可筛选、可导出的结果页。数据保存在浏览器本地，刷新不丢失。</p>
+      <div class="kicker">批量图片对比评测工具</div>
+      <h1>批量图片对比评测台</h1>
+      <p>上传 1~5 组素材（可自定义名字）→ 按文件名前缀自动配对 → 逐条标记通过 / 不通过 / 待定并写评语 → 生成可筛选、可导出的结果页。数据保存在浏览器本地，刷新不丢失。</p>
     </div>
     <div class="tabs">
       <button class="tab active" data-target="p1">① 上传</button>
@@ -145,41 +151,13 @@ input[type=file]{display:none;}
     <div class="screen-hd">
       <div>
         <div class="title">上传素材</div>
-        <div class="sub">三个框按文件名前缀一一对应（如 0001_src.jpg / 0001_cloth.jpg / 0001_out.jpg，或完全同名也可）</div>
+        <div class="sub">各卡片按文件名前缀一一对应（如 0001_src.jpg / 0001_cloth.jpg，或完全同名也可），卡片名字可点击直接改</div>
       </div>
       <button class="btn btn-primary" id="btnPair">开始配对 →</button>
     </div>
     <div class="screen-body">
-      <div class="upload-grid">
-        <div class="dropzone" data-zone="src">
-          <div class="dz-label">原图</div>
-          <div class="dz-hint">拖拽或点击上传，最多 300 张</div>
-          <div class="dz-drop" data-zone="src">拖拽图片到此处，或点击选择文件</div>
-          <div class="dz-thumbs" data-thumbs="src"></div>
-          <div class="dz-progress-row"><span data-count="src">已上传 0 / 300</span><span data-pct="src">0%</span></div>
-          <div class="dz-bar"><span data-bar="src"></span></div>
-          <input type="file" accept="image/*" multiple data-input="src">
-        </div>
-        <div class="dropzone" data-zone="cloth">
-          <div class="dz-label">服装图</div>
-          <div class="dz-hint">拖拽或点击上传，最多 300 张</div>
-          <div class="dz-drop" data-zone="cloth">拖拽图片到此处，或点击选择文件</div>
-          <div class="dz-thumbs" data-thumbs="cloth"></div>
-          <div class="dz-progress-row"><span data-count="cloth">已上传 0 / 300</span><span data-pct="cloth">0%</span></div>
-          <div class="dz-bar"><span data-bar="cloth"></span></div>
-          <input type="file" accept="image/*" multiple data-input="cloth">
-        </div>
-        <div class="dropzone" data-zone="out">
-          <div class="dz-label">结果图</div>
-          <div class="dz-hint">拖拽或点击上传，最多 300 张</div>
-          <div class="dz-drop" data-zone="out">拖拽图片到此处，或点击选择文件</div>
-          <div class="dz-thumbs" data-thumbs="out"></div>
-          <div class="dz-progress-row"><span data-count="out">已上传 0 / 300</span><span data-pct="out">0%</span></div>
-          <div class="dz-bar"><span data-bar="out"></span></div>
-          <input type="file" accept="image/*" multiple data-input="out">
-        </div>
-      </div>
-      <div class="match-note" id="matchNote">三个框都上传后点击「开始配对」，系统会按文件名自动匹配三张图为一组</div>
+      <div class="upload-grid" id="uploadGrid"></div>
+      <div class="match-note" id="matchNote"></div>
     </div>
   </div>
 
@@ -263,9 +241,19 @@ input[type=file]{display:none;}
 <div class="overlay-mask" id="overlay"><div id="overlayText">处理中…</div></div>
 
 <script>
+/* ================== 常量 ================== */
+const MAX_ZONES = 5;
+const MAX_FILES = 400;
+const ZONES_KEY = 'wearCheckZones';
+const DEFAULT_ZONES = [
+  { id: 'z1', name: '原图' },
+  { id: 'z2', name: '服装图' },
+  { id: 'z3', name: '结果图' },
+];
+
 /* ================== 数据层：IndexedDB ================== */
 const DB_NAME = 'wear-check-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2; // v2: 数据结构改为多卡片 values{} 结构，与 v1（固定 src/cloth/out）不兼容
 let dbPromise = null;
 function openDB(){
   if(dbPromise) return dbPromise;
@@ -273,9 +261,8 @@ function openDB(){
     const req = indexedDB.open(DB_NAME, DB_VERSION);
     req.onupgradeneeded = () => {
       const db = req.result;
-      if(!db.objectStoreNames.contains('items')){
-        db.createObjectStore('items', { keyPath: 'key' });
-      }
+      if(db.objectStoreNames.contains('items')) db.deleteObjectStore('items');
+      db.createObjectStore('items', { keyPath: 'key' });
     };
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => reject(req.error);
@@ -311,12 +298,23 @@ async function dbGetAll(){
 }
 
 /* ================== 全局状态 ================== */
+function loadZones(){
+  try{
+    const saved = JSON.parse(localStorage.getItem(ZONES_KEY) || 'null');
+    if(Array.isArray(saved) && saved.length) return saved;
+  }catch(e){}
+  return DEFAULT_ZONES.map(z => ({ ...z }));
+}
+function saveZones(){ localStorage.setItem(ZONES_KEY, JSON.stringify(state.zones)); }
+
 const state = {
-  pending: { src: [], cloth: [], out: [] },   // 上传页暂存的原始 File
-  items: [],       // 配对后的数据: {key, src:{name,blob,url,w,h}, cloth:{...}, out:{...}, tag, note}
+  zones: loadZones(),   // [{id, name}]
+  pending: {},           // zoneId -> File[]
+  items: [],             // {key, values:{zoneId:{name,blob,url,w,h}}, tag, note}
   curIndex: 0,
   filter: 'all',
 };
+state.zones.forEach(z => { state.pending[z.id] = []; });
 
 /* ================== 工具函数 ================== */
 function basename(name){ return name.replace(/\.[^.]+$/, ''); }
@@ -363,100 +361,199 @@ function blobToDataURL(blob){
   });
 }
 
-/* ================== 页面 1：上传 ================== */
-const ZONES = ['src', 'cloth', 'out'];
-const ZONE_LABEL = { src: '原图', cloth: '服装图', out: '结果图' };
+function zoneName(id){
+  const z = state.zones.find(z => z.id === id);
+  return z ? z.name : id;
+}
 
-ZONES.forEach(zone => {
-  const dz = document.querySelector(`.dz-drop[data-zone="${zone}"]`);
-  const input = document.querySelector(`input[data-input="${zone}"]`);
-  const zoneBox = document.querySelector(`.dropzone[data-zone="${zone}"]`);
+/* ================== 页面 1：上传（动态卡片） ================== */
+function renderUploadZones(){
+  const grid = document.getElementById('uploadGrid');
+  grid.innerHTML = '';
 
-  dz.addEventListener('click', () => input.click());
-  input.addEventListener('change', e => addFiles(zone, e.target.files));
+  state.zones.forEach(zone => {
+    if(!state.pending[zone.id]) state.pending[zone.id] = [];
+    const arr = state.pending[zone.id];
 
-  ['dragenter', 'dragover'].forEach(ev => zoneBox.addEventListener(ev, e => {
-    e.preventDefault(); zoneBox.classList.add('dragover');
-  }));
-  ['dragleave', 'drop'].forEach(ev => zoneBox.addEventListener(ev, e => {
-    e.preventDefault(); zoneBox.classList.remove('dragover');
-  }));
-  zoneBox.addEventListener('drop', e => addFiles(zone, e.dataTransfer.files));
-});
+    const box = document.createElement('div');
+    box.className = 'dropzone';
+    box.dataset.zone = zone.id;
 
-function addFiles(zone, fileList){
-  const arr = state.pending[zone];
+    const head = document.createElement('div');
+    head.className = 'dz-head';
+    const nameInput = document.createElement('input');
+    nameInput.className = 'dz-label-input';
+    nameInput.value = zone.name;
+    nameInput.maxLength = 20;
+    nameInput.addEventListener('input', () => {
+      zone.name = nameInput.value || zone.name;
+      saveZones();
+    });
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'dz-remove';
+    removeBtn.innerHTML = '&times;';
+    removeBtn.title = '删除这张卡片';
+    removeBtn.disabled = state.zones.length <= 1;
+    removeBtn.addEventListener('click', () => removeZone(zone.id));
+    head.appendChild(nameInput);
+    head.appendChild(removeBtn);
+
+    const hint = document.createElement('div');
+    hint.className = 'dz-hint';
+    hint.textContent = `拖拽或点击上传，最多 ${MAX_FILES} 张`;
+
+    const drop = document.createElement('div');
+    drop.className = 'dz-drop';
+    drop.textContent = '拖拽图片到此处，或点击选择文件';
+
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+
+    const thumbs = document.createElement('div');
+    thumbs.className = 'dz-thumbs';
+
+    const progressRow = document.createElement('div');
+    progressRow.className = 'dz-progress-row';
+    const countSpan = document.createElement('span');
+    const pctSpan = document.createElement('span');
+    progressRow.appendChild(countSpan);
+    progressRow.appendChild(pctSpan);
+
+    const bar = document.createElement('div');
+    bar.className = 'dz-bar';
+    const barFill = document.createElement('span');
+    bar.appendChild(barFill);
+
+    box.appendChild(head);
+    box.appendChild(hint);
+    box.appendChild(drop);
+    box.appendChild(thumbs);
+    box.appendChild(progressRow);
+    box.appendChild(bar);
+    box.appendChild(input);
+    grid.appendChild(box);
+
+    drop.addEventListener('click', () => input.click());
+    input.addEventListener('change', e => addFiles(zone.id, e.target.files));
+    ['dragenter', 'dragover'].forEach(ev => box.addEventListener(ev, e => {
+      e.preventDefault(); box.classList.add('dragover');
+    }));
+    ['dragleave', 'drop'].forEach(ev => box.addEventListener(ev, e => {
+      e.preventDefault(); box.classList.remove('dragover');
+    }));
+    box.addEventListener('drop', e => addFiles(zone.id, e.dataTransfer.files));
+
+    updateZoneProgress(zone.id, { countSpan, pctSpan, barFill, thumbs });
+  });
+
+  if(state.zones.length < MAX_ZONES){
+    const addTile = document.createElement('div');
+    addTile.className = 'dz-add';
+    addTile.innerHTML = '<span class="plus">+</span><span>添加卡片</span>';
+    addTile.addEventListener('click', addZone);
+    grid.appendChild(addTile);
+  }
+
+  renderMatchPreview();
+}
+
+// 每个卡片的动态区域缓存，避免重新输入名字时打断输入焦点
+const zoneEls = new Map();
+function updateZoneProgress(zoneId, els){ zoneEls.set(zoneId, els); renderZoneProgress(zoneId); }
+function renderZoneProgress(zoneId){
+  const els = zoneEls.get(zoneId);
+  if(!els) return;
+  const arr = state.pending[zoneId] || [];
+  els.countSpan.textContent = `已上传 ${arr.length} / ${MAX_FILES}`;
+  const pct = Math.round(arr.length / MAX_FILES * 100);
+  els.pctSpan.textContent = pct + '%';
+  els.barFill.style.width = pct + '%';
+  els.thumbs.innerHTML = '';
+  arr.slice(-12).forEach(f => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    els.thumbs.appendChild(img);
+  });
+}
+
+function addZone(){
+  if(state.zones.length >= MAX_ZONES) return;
+  const id = 'z' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  state.zones.push({ id, name: `卡片 ${state.zones.length + 1}` });
+  state.pending[id] = [];
+  saveZones();
+  renderUploadZones();
+}
+function removeZone(zoneId){
+  if(state.zones.length <= 1) return;
+  state.zones = state.zones.filter(z => z.id !== zoneId);
+  delete state.pending[zoneId];
+  zoneEls.delete(zoneId);
+  saveZones();
+  renderUploadZones();
+}
+
+function addFiles(zoneId, fileList){
+  const arr = state.pending[zoneId];
   const seen = new Set(arr.map(f => f.name));
   for(const f of fileList){
     if(!f.type.startsWith('image/')) continue;
     if(seen.has(f.name)) continue;
-    if(arr.length >= 300) break;
+    if(arr.length >= MAX_FILES) break;
     arr.push(f);
     seen.add(f.name);
   }
-  renderZone(zone);
+  renderZoneProgress(zoneId);
   renderMatchPreview();
-}
-
-function renderZone(zone){
-  const arr = state.pending[zone];
-  document.querySelector(`[data-count="${zone}"]`).textContent = `已上传 ${arr.length} / 300`;
-  const pct = Math.round(arr.length / 300 * 100);
-  document.querySelector(`[data-pct="${zone}"]`).textContent = pct + '%';
-  document.querySelector(`[data-bar="${zone}"]`).style.width = pct + '%';
-  const thumbsBox = document.querySelector(`[data-thumbs="${zone}"]`);
-  thumbsBox.innerHTML = '';
-  arr.slice(-12).forEach(f => {
-    const img = document.createElement('img');
-    img.src = URL.createObjectURL(f);
-    thumbsBox.appendChild(img);
-  });
 }
 
 function renderMatchPreview(){
   const note = document.getElementById('matchNote');
-  const total = ZONES.reduce((s, z) => s + state.pending[z].length, 0);
+  const total = state.zones.reduce((s, z) => s + (state.pending[z.id] || []).length, 0);
   if(total === 0){
-    note.innerHTML = '三个框都上传后点击「开始配对」，系统会按文件名自动匹配三张图为一组';
+    note.innerHTML = '各卡片都上传后点击「开始配对」，系统会按文件名自动匹配为一组';
     return;
   }
   const keysByZone = {};
-  ZONES.forEach(z => { keysByZone[z] = computeKeys(state.pending[z]); });
+  state.zones.forEach(z => { keysByZone[z.id] = computeKeys(state.pending[z.id] || []); });
   const allKeys = new Set();
-  ZONES.forEach(z => keysByZone[z].forEach(k => allKeys.add(k)));
+  state.zones.forEach(z => keysByZone[z.id].forEach(k => allKeys.add(k)));
   let full = 0, partial = 0;
+  const zoneCount = state.zones.length;
   allKeys.forEach(k => {
-    const hits = ZONES.filter(z => keysByZone[z].includes(k)).length;
-    if(hits === 3) full++; else partial++;
+    const hits = state.zones.filter(z => keysByZone[z.id].includes(k)).length;
+    if(hits === zoneCount) full++; else partial++;
   });
-  note.innerHTML = `按文件名配对预览：<b>${full}</b> 组三图齐全 · <b>${partial}</b> 组缺图`;
+  note.innerHTML = `按文件名配对预览：<b>${full}</b> 组齐全 · <b>${partial}</b> 组缺图`;
 }
 
 document.getElementById('btnPair').addEventListener('click', doPairing);
 
 async function doPairing(){
-  const total = ZONES.reduce((s, z) => s + state.pending[z].length, 0);
+  const total = state.zones.reduce((s, z) => s + (state.pending[z.id] || []).length, 0);
   if(total === 0){ alert('请先至少上传一张图片'); return; }
   showOverlay('正在压缩并配对图片…');
 
   const keysByZone = {};
-  ZONES.forEach(z => { keysByZone[z] = computeKeys(state.pending[z]); });
+  state.zones.forEach(z => { keysByZone[z.id] = computeKeys(state.pending[z.id] || []); });
 
-  const itemMap = new Map(); // key -> {src,cloth,out}
-  for(const zone of ZONES){
-    const files = state.pending[zone];
-    const keys = keysByZone[zone];
+  const itemMap = new Map(); // key -> {values:{zoneId:{...}}}
+  for(const zone of state.zones){
+    const files = state.pending[zone.id] || [];
+    const keys = keysByZone[zone.id];
     for(let i = 0; i < files.length; i++){
       const key = keys[i];
-      if(!itemMap.has(key)) itemMap.set(key, { key });
+      if(!itemMap.has(key)) itemMap.set(key, { key, values: {} });
       const { blob, width, height } = await compressImage(files[i]);
-      itemMap.get(key)[zone] = { name: files[i].name, blob, w: width, h: height };
+      itemMap.get(key).values[zone.id] = { name: files[i].name, blob, w: width, h: height };
     }
   }
 
   const items = Array.from(itemMap.values())
     .sort((a, b) => collator.compare(a.key, b.key))
-    .map(it => ({ key: it.key, src: it.src || null, cloth: it.cloth || null, out: it.out || null, tag: null, note: '' }));
+    .map(it => ({ key: it.key, values: it.values, tag: null, note: '' }));
 
   await dbPutAll(items);
   hydrateItems(items);
@@ -469,8 +566,9 @@ async function doPairing(){
 
 function hydrateItems(items){
   items.forEach(it => {
-    ['src', 'cloth', 'out'].forEach(z => {
-      if(it[z] && it[z].blob && !it[z].url) it[z].url = URL.createObjectURL(it[z].blob);
+    Object.keys(it.values).forEach(zid => {
+      const v = it.values[zid];
+      if(v && v.blob && !v.url) v.url = URL.createObjectURL(v.blob);
     });
   });
   state.items = items;
@@ -495,19 +593,21 @@ function renderCurrent(){
   const it = state.items[state.curIndex];
   const triple = document.getElementById('curTriple');
   triple.innerHTML = '';
+  triple.style.gridTemplateColumns = `repeat(${Math.max(state.zones.length, 1)}, 1fr)`;
   if(!it){
     document.getElementById('curFname').textContent = '暂无数据';
     return;
   }
   document.getElementById('curFname').textContent = `${it.key} · 第 ${state.curIndex + 1} 组 / 共 ${state.items.length} 组`;
-  ['src', 'cloth', 'out'].forEach(z => {
+  state.zones.forEach(z => {
+    const entry = it.values[z.id];
     const cell = document.createElement('div');
-    if(it[z]){
+    if(entry){
       cell.className = 'cell';
-      cell.innerHTML = `<img src="${it[z].url}"><span class="cap">${ZONE_LABEL[z]}</span>`;
+      cell.innerHTML = `<img src="${entry.url}"><span class="cap">${escapeHtml(z.name)}</span>`;
     } else {
       cell.className = 'cell missing';
-      cell.textContent = `缺 ${ZONE_LABEL[z]}`;
+      cell.textContent = `缺 ${z.name}`;
     }
     triple.appendChild(cell);
   });
@@ -534,9 +634,10 @@ function setTag(item, tag, advance){
 }
 function sanitizeForDB(item){
   // url 是运行时生成的 ObjectURL，不需要持久化
-  const clone = { key: item.key, tag: item.tag, note: item.note };
-  ['src', 'cloth', 'out'].forEach(z => {
-    clone[z] = item[z] ? { name: item[z].name, blob: item[z].blob, w: item[z].w, h: item[z].h } : null;
+  const clone = { key: item.key, tag: item.tag, note: item.note, values: {} };
+  Object.keys(item.values).forEach(zid => {
+    const v = item.values[zid];
+    clone.values[zid] = v ? { name: v.name, blob: v.blob, w: v.w, h: v.h } : null;
   });
   return clone;
 }
@@ -555,9 +656,18 @@ document.getElementById('navNext').addEventListener('click', () => { if(state.cu
 document.addEventListener('keydown', e => {
   if(!document.getElementById('p2').classList.contains('active')) return;
   if(document.activeElement.tagName === 'TEXTAREA') return;
+  if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  e.preventDefault(); // 防止浏览器默认的左右滚动/焦点跳动带着工作区一起晃动
   if(e.key === 'ArrowLeft') document.getElementById('navPrev').click();
   if(e.key === 'ArrowRight') document.getElementById('navNext').click();
 });
+
+function firstThumb(it){
+  for(const z of state.zones){
+    if(it.values[z.id]) return it.values[z.id];
+  }
+  return null;
+}
 
 function renderSideList(){
   const list = document.getElementById('sideList');
@@ -566,8 +676,8 @@ function renderSideList(){
   state.items.forEach((it, idx) => {
     const row = document.createElement('div');
     row.className = 'side-item' + (idx === state.curIndex ? ' current' : '');
-    const thumbSrc = (it.src || it.cloth || it.out);
-    row.innerHTML = `<img class="sw" src="${thumbSrc ? thumbSrc.url : ''}"><span class="nm">${it.key}</span><span class="dot ${it.tag || 'none'}"></span>`;
+    const thumb = firstThumb(it);
+    row.innerHTML = `<img class="sw" src="${thumb ? thumb.url : ''}"><span class="nm">${escapeHtml(it.key)}</span><span class="dot ${it.tag || 'none'}"></span>`;
     row.addEventListener('click', () => { state.curIndex = idx; renderCurrent(); });
     list.appendChild(row);
   });
@@ -622,16 +732,18 @@ function renderResults(){
     card.className = 'rcard';
     const row = document.createElement('div');
     row.className = 'triplerow';
-    ['src', 'cloth', 'out'].forEach(z => {
+    row.style.gridTemplateColumns = `repeat(${Math.max(state.zones.length, 1)}, 1fr)`;
+    state.zones.forEach(z => {
+      const entry = it.values[z.id];
       const cell = document.createElement('div');
       cell.className = 'cell';
-      if(it[z]) cell.innerHTML = `<img src="${it[z].url}">`;
+      if(entry) cell.innerHTML = `<img src="${entry.url}">`;
       row.appendChild(cell);
     });
     row.addEventListener('click', () => openLightbox(it));
     const meta = document.createElement('div');
     meta.className = 'meta';
-    meta.innerHTML = `<span class="fname">${it.key}</span><button class="badge ${it.tag || 'none'}" data-key="${it.key}">${tagLabel(it.tag)}</button>`;
+    meta.innerHTML = `<span class="fname">${escapeHtml(it.key)}</span><button class="badge ${it.tag || 'none'}" data-key="${it.key}">${tagLabel(it.tag)}</button>`;
     meta.querySelector('button').addEventListener('click', ev => {
       ev.stopPropagation();
       cycleTag(it);
@@ -666,10 +778,11 @@ function openLightbox(it){
   document.getElementById('lightboxName').textContent = it.key;
   const box = document.getElementById('lightboxImgs');
   box.innerHTML = '';
-  ['src', 'cloth', 'out'].forEach(z => {
+  state.zones.forEach(z => {
+    const entry = it.values[z.id];
     const cell = document.createElement('div');
     cell.className = 'cell';
-    if(it[z]) cell.innerHTML = `<img src="${it[z].url}">`;
+    if(entry) cell.innerHTML = `<img src="${entry.url}">`;
     box.appendChild(cell);
   });
   document.querySelectorAll('#lightbox .badge').forEach(b => b.style.outline = b.dataset.tag === it.tag ? '2px solid var(--accent)' : 'none');
@@ -689,15 +802,15 @@ document.querySelectorAll('#lightbox .badge[data-tag]').forEach(btn => {
 });
 
 async function composeCanvas(it, cellW = 480, cellH = 640){
+  const zones = state.zones;
   const canvas = document.createElement('canvas');
-  canvas.width = cellW * 3;
+  canvas.width = cellW * Math.max(zones.length, 1);
   canvas.height = cellH;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#f2f1ed';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-  const zones = ['src', 'cloth', 'out'];
-  for(let i = 0; i < 3; i++){
-    const entry = it[zones[i]];
+  for(let i = 0; i < zones.length; i++){
+    const entry = it.values[zones[i].id];
     if(!entry) continue;
     const img = await loadImg(entry.url);
     const scale = Math.min(cellW / img.width, cellH / img.height);
@@ -735,16 +848,18 @@ async function buildExportHTML(){
   if(items.length === 0) return null;
   showOverlay(`正在生成报告（${items.length} 组）…`);
 
+  const zoneCount = Math.max(state.zones.length, 1);
   const rows = [];
   for(const it of items){
-    const cells = await Promise.all(['src', 'cloth', 'out'].map(async z => {
-      if(!it[z]) return `<div class="cell missing">缺图</div>`;
-      const dataUrl = await blobToDataURL(it[z].blob);
+    const cells = await Promise.all(state.zones.map(async z => {
+      const entry = it.values[z.id];
+      if(!entry) return `<div class="cell missing">缺 ${escapeHtml(z.name)}</div>`;
+      const dataUrl = await blobToDataURL(entry.blob);
       return `<div class="cell"><img src="${dataUrl}"></div>`;
     }));
     rows.push(`
       <div class="rcard" data-tag="${it.tag || ''}">
-        <div class="triplerow">${cells.join('')}</div>
+        <div class="triplerow" style="grid-template-columns:repeat(${zoneCount},1fr);">${cells.join('')}</div>
         <div class="meta"><span class="fname">${escapeHtml(it.key)}</span><span class="badge ${it.tag || 'none'}">${tagLabel(it.tag)}</span></div>
         ${it.note ? `<div class="note">${escapeHtml(it.note)}</div>` : ''}
       </div>`);
@@ -772,7 +887,7 @@ async function exportReportLocal(){
   const blob = new Blob([html], { type: 'text/html' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `换装评测报告_${new Date().toISOString().slice(0,10)}.html`;
+  a.download = `图片对比评测报告_${new Date().toISOString().slice(0,10)}.html`;
   a.click();
 }
 
@@ -782,7 +897,7 @@ function escapeHtml(s){
 
 function buildReportHTML({ rows, good, bad, pending, count, total, filterName }){
   return `<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8">
-<title>换装评测报告</title>
+<title>图片对比评测报告</title>
 <style>
 body{margin:0;background:#f2f1ed;color:#1c1b19;font-family:-apple-system,'PingFang SC',system-ui,sans-serif;padding:24px 16px 60px;}
 .wrap{max-width:1100px;margin:0 auto;}
@@ -795,7 +910,7 @@ h1{font-size:22px;margin:0 0 4px;}
 @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
 @media (max-width:600px){.grid{grid-template-columns:1fr;}}
 .rcard{background:#fafaf7;border:1px solid #e2e0d9;border-radius:12px;overflow:hidden;}
-.triplerow{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#e2e0d9;}
+.triplerow{display:grid;gap:2px;background:#e2e0d9;}
 .triplerow .cell{aspect-ratio:3/4;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:11px;color:#6b6863;}
 .triplerow img{width:100%;height:100%;object-fit:contain;}
 .meta{padding:9px 12px;display:flex;justify-content:space-between;align-items:center;font-size:11px;}
@@ -805,7 +920,7 @@ h1{font-size:22px;margin:0 0 4px;}
 .note{padding:0 12px 12px;font-size:12px;color:#6b6863;}
 </style></head>
 <body><div class="wrap">
-<h1>换装效果评测报告</h1>
+<h1>图片对比评测报告</h1>
 <div class="sub">导出范围：${filterName} · 共 ${count} 组（全量数据 Good ${good} / Bad ${bad} / 待定 ${pending}，共 ${total} 组）</div>
 <div class="stat-row">
   <div class="stat">Good case 率<b>${good}</b></div>
@@ -823,7 +938,9 @@ function showOverlay(text){
 }
 function hideOverlay(){ document.getElementById('overlay').classList.remove('show'); }
 
-/* ================== 启动：从 IndexedDB 恢复历史数据 ================== */
+/* ================== 启动 ================== */
+renderUploadZones();
+
 (async function init(){
   try{
     const items = await dbGetAll();
