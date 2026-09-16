@@ -4,7 +4,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#0f0f13;color:#eee}
-.header{padding:32px 40px 20px}.header h1{font-size:28px;font-weight:700;margin-bottom:6px}.header p{font-size:14px;color:#888}
+.header{padding:32px 170px 20px 40px;position:relative}.header h1{font-size:28px;font-weight:700;margin-bottom:6px}.header p{font-size:14px;color:#888}
 .section{margin-bottom:36px}.section-title{padding:0 40px;font-size:20px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
 .section-title .badge{font-size:12px;font-weight:500;background:rgba(255,255,255,0.1);padding:3px 10px;border-radius:99px;color:#aaa}
 .scroll-row{display:flex;gap:16px;overflow-x:auto;padding:0 40px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,0.2) transparent}
@@ -28,7 +28,11 @@ body{font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#0
 .comment-box .save-btn:active{transform:scale(0.96)}
 .saved-tip{font-size:11px;color:#7cd992;opacity:0;transition:opacity 0.3s;align-self:flex-end;height:14px}
 .saved-tip.show{opacity:1}
+
+.export-btn{position:fixed;top:20px;right:24px;z-index:50;background:#6ea8ff;color:#0f0f13;border:none;font-size:13px;font-weight:600;padding:10px 18px;border-radius:99px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4)}
+.export-btn:active{transform:scale(0.97)}
 </style></head><body>
+<button type="button" class="export-btn" onclick="exportComments()">导出评语</button>
 <div class="header"><h1>Outfit 一期品类预览（本地化版 v2）</h1>
 <p>UFace · AI 试衣 · 64 套素材 · Trend + 5 个分类（Casual · Party · Traditional · Wedding · Y2K）· 左右滑动浏览 · 点击放大</p></div>
 <div class="stats"><div class="stat-box" data-stat="Trend"><div class="num">10</div><div class="lbl">Trend</div></div>
@@ -123,6 +127,33 @@ body{font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#0
 var COMMENTS_KEY='outfit_comments_v1';
 var ORDER_KEY='outfit_order_v1';
 var draggedCard=null;
+function exportComments(){
+  var data=[];
+  document.querySelectorAll('.section').forEach(function(sec){
+    var name=sec.getAttribute('data-section');
+    sec.querySelectorAll('.scroll-row > .card').forEach(function(card){
+      var labelEl=card.querySelector('.label');
+      var ta=card.querySelector('.comment-input');
+      data.push({
+        id: card.id,
+        section: name,
+        label: labelEl ? labelEl.textContent : '',
+        comment: ta ? ta.value : ''
+      });
+    });
+  });
+  var blob=new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var ts=new Date().toISOString().slice(0,16).replace(/[:T]/g,'-');
+  a.href=url;
+  a.download='评语导出-'+ts+'.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 
 function showPreview(c,e){
   if(e && e.target && e.target.closest && e.target.closest('.comment-box, .drag-handle')) return;
