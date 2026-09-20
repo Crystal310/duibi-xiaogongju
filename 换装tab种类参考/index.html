@@ -37,16 +37,22 @@ body{font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#0
 .status-badge.fail{background:rgba(220,53,69,0.9);color:#fff}
 .status-badge.none{background:rgba(100,100,100,0.6);color:#ccc}
 
-.eval-table-wrap{padding:20px 40px 60px;margin-top:20px}
+.eval-table-wrap{padding:20px 40px 60px;margin-top:20px;max-width:900px}
 .eval-table-wrap h2{font-size:22px;font-weight:700;margin-bottom:16px;color:#eee}
 .eval-table-wrap .table-actions{display:flex;gap:12px;margin-bottom:14px}
 .eval-table-wrap .table-actions button{background:rgba(110,168,255,0.15);color:#6ea8ff;border:1px solid rgba(110,168,255,0.4);font-size:13px;padding:8px 16px;border-radius:99px;cursor:pointer;font-weight:600}
 .eval-table-wrap .table-actions button:active{transform:scale(0.97)}
-.eval-table{width:100%;border-collapse:collapse;background:#1a1a22;border-radius:12px;overflow:hidden}
-.eval-table th{background:#24242e;color:#aaa;font-size:12px;font-weight:600;text-align:left;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.eval-table td{padding:10px 16px;font-size:13px;color:#ddd;border-bottom:1px solid rgba(255,255,255,0.04)}
+.eval-table{width:100%;border-collapse:separate;border-spacing:0;background:#1a1a22;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.15)}
+.eval-table th{background:#24242e;color:#aaa;font-size:12px;font-weight:600;text-align:left;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,0.15);border-right:1px solid rgba(255,255,255,0.1)}
+.eval-table th:last-child{border-right:none}
+.eval-table td{padding:8px 14px;font-size:13px;color:#ddd;border-bottom:1px solid rgba(255,255,255,0.1);border-right:1px solid rgba(255,255,255,0.06)}
+.eval-table td:last-child{border-right:none}
 .eval-table tr:last-child td{border-bottom:none}
-.eval-table td[contenteditable]{cursor:text;outline:none;min-width:80px}
+.eval-table th:nth-child(1),.eval-table td:nth-child(1){width:90px}
+.eval-table th:nth-child(2),.eval-table td:nth-child(2){width:200px}
+.eval-table th:nth-child(3),.eval-table td:nth-child(3){width:110px;text-align:center}
+.eval-table th:nth-child(4),.eval-table td:nth-child(4){min-width:150px}
+.eval-table td[contenteditable]{cursor:text;outline:none}
 .eval-table td[contenteditable]:focus{background:rgba(110,168,255,0.08);border-radius:4px}
 .eval-table .td-status{cursor:pointer;user-select:none}
 .eval-table .td-status .pass-text{color:#28a745;font-weight:600}
@@ -358,6 +364,19 @@ function onRowDrop(e){
 
 
 var STATUS_KEY='outfit_eval_status_v1';
+
+var SYNC_MAP={'card-1':'card-16','card-16':'card-1','card-2':'card-20','card-20':'card-2','card-3':'card-21','card-21':'card-3','card-5':'card-26','card-26':'card-5','card-4':'card-23','card-23':'card-4','card-6':'card-30','card-30':'card-6','card-7':'card-32','card-32':'card-7','card-8':'card-41','card-41':'card-8','card-9':'card-42','card-42':'card-9','card-10':'card-49','card-49':'card-10'};
+
+function syncPeer(cardId, status){
+  var peerId = SYNC_MAP[cardId];
+  if(!peerId) return;
+  var statuses = loadStatus();
+  statuses[peerId] = status;
+  saveStatusData(statuses);
+  syncCardBadge(peerId, status);
+  syncTableRow(peerId, status);
+}
+
 var TABLE_KEY='outfit_eval_table_v1';
 
 function loadStatus(){ return loadJSON(STATUS_KEY) || {}; }
@@ -373,6 +392,7 @@ function toggleStatus(e, badge){
   saveStatusData(statuses);
   updateBadge(badge, next);
   syncTableRow(card.id, next);
+  syncPeer(card.id, next);
 }
 
 function updateBadge(badge, status){
@@ -390,6 +410,7 @@ function toggleTableStatus(td){
   saveStatusData(statuses);
   updateTableCell(td, next);
   syncCardBadge(cardId, next);
+  syncPeer(cardId, next);
   saveTableData();
 }
 
@@ -417,6 +438,10 @@ function restoreStatus(){
   var statuses = loadStatus();
   document.querySelectorAll('.card').forEach(function(card){
     var s = statuses[card.id] || 'none';
+    if(s === 'none' && SYNC_MAP[card.id]){
+      var peerS = statuses[SYNC_MAP[card.id]];
+      if(peerS && peerS !== 'none') s = peerS;
+    }
     var badge = card.querySelector('.status-badge');
     if(badge) updateBadge(badge, s);
     syncTableRow(card.id, s);
@@ -512,16 +537,6 @@ document.addEventListener('DOMContentLoaded', function(){
 <table class="eval-table">
 <thead><tr><th>分类</th><th>名字</th><th>评测是否通过</th><th>问题</th></tr></thead>
 <tbody>
-<tr data-card-id="card-1"><td>Trend</td><td>韩系甜辣休闲</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-2"><td>Trend</td><td>亮片鸡尾酒裙</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-3"><td>Trend</td><td>拉丁鲜艳荷叶边连衣裙</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-5"><td>Trend</td><td>Coachella流苏boho</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-4"><td>Trend</td><td>长袖修身晚礼服</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-6"><td>Trend</td><td>印度saree（金绣）</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-7"><td>Trend</td><td>土耳其_奥斯曼传统长裙</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-8"><td>Trend</td><td>印度红色lehenga新娘</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-9"><td>Trend</td><td>西式白纱（鱼尾）</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
-<tr data-card-id="card-10"><td>Trend</td><td>印度新郎sherwani</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
 <tr data-card-id="card-56"><td>Casual</td><td>样式1</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
 <tr data-card-id="card-12"><td>Casual</td><td>衬衫裙（及膝）</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
 <tr data-card-id="card-14"><td>Casual</td><td>连帽卫衣+运动裤</td><td class="td-status" onclick="toggleTableStatus(this)"><span class="none-text">待评测</span></td><td contenteditable="true" class="td-issue" oninput="saveTableData()"></td></tr>
