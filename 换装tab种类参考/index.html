@@ -29,6 +29,7 @@ body{font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#0
 .saved-tip{font-size:11px;color:#7cd992;opacity:0;transition:opacity 0.3s;align-self:flex-end;height:14px}
 .saved-tip.show{opacity:1}
 
+.page-links{display:flex;align-items:center;gap:10px;margin-top:17px}.page-current,.data-link{display:inline-flex;align-items:center;gap:10px;padding:9px 13px;border-radius:9px;font-size:13px;font-weight:700;line-height:1.3}.page-current{color:#d7dde9;background:#252832;border:1px solid #383c49}.data-link{color:#0f1720;background:#87dfcd;border:1px solid #a8f0dd;text-decoration:none;box-shadow:0 3px 12px rgba(0,0,0,.18)}.data-link:hover{background:#b5f2e5;transform:translateY(-1px)}.data-link span{font-size:11px;color:#345c54}.data-link:focus-visible{outline:2px solid #fff;outline-offset:3px}
 .export-btn{position:fixed;top:20px;right:24px;z-index:50;background:#6ea8ff;color:#0f0f13;border:none;font-size:13px;font-weight:600;padding:10px 18px;border-radius:99px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.4)}
 .export-btn:active{transform:scale(0.97)}
 
@@ -79,7 +80,7 @@ body{font-family:"PingFang SC","Noto Sans SC",system-ui,sans-serif;background:#0
 </style></head><body>
 <button type="button" class="export-btn" onclick="exportComments()">导出评语</button>
 <div class="header"><h1>Outfit 一期品类预览（本地化版 v2）</h1>
-<p>UFace · AI 试衣 · 64 套素材 · Trend + 5 个分类（Casual · Party · Traditional · Wedding · Y2K）· 左右滑动浏览 · 点击放大</p></div>
+<p>UFace · AI 试衣 · 64 套素材 · Trend + 5 个分类（Casual · Party · Traditional · Wedding · Y2K）· 左右滑动浏览 · 点击放大</p><nav class="page-links" aria-label="页面导航"><span class="page-current" aria-current="page">品类参考</span><a class="data-link" href="./数据回收/index.html">查看数据回收 <span>10.11—10.22 →</span></a></nav></div>
 <div class="stats"><div class="stat-box" data-stat="Trend"><div class="num">10</div><div class="lbl">Trend</div></div>
 <div class="stat-box" data-stat="Casual"><div class="num">10</div><div class="lbl">Casual</div></div>
 <div class="stat-box" data-stat="Party"><div class="num">10</div><div class="lbl">Party</div></div>
