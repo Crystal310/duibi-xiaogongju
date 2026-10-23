@@ -12,7 +12,7 @@
     .header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:28px}.header h1{font-size:clamp(28px,3vw,40px);line-height:1.14;margin:12px 0 8px;letter-spacing:-.035em}.sub{color:var(--muted);margin:0;max-width:760px}.back{white-space:nowrap;border:1px solid var(--line);background:#fff;text-decoration:none;padding:9px 13px;border-radius:9px;font-weight:700}.back:hover{border-color:var(--accent);color:var(--accent)}
     .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}.stat,.panel,.toolbar,.section,.row{background:var(--card);border:1px solid var(--line);box-shadow:0 3px 14px rgba(24,34,45,.025)}.stat{border-radius:13px;padding:18px 20px}.stat small{display:block;color:var(--muted);font-weight:600}.stat strong{display:block;font-size:27px;line-height:1.2;margin:7px 0 2px;font-variant-numeric:tabular-nums;letter-spacing:-.03em}.stat em{font-size:11px;color:var(--muted);font-style:normal}
     .panel{border-radius:13px;padding:20px 22px;margin-bottom:20px}.panel h2{font-size:16px;margin:0 0 12px}.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.insight{border-left:3px solid var(--accent);padding:1px 14px}.insight b{display:block;font-size:14px;margin-bottom:4px}.insight p{color:var(--muted);margin:0;font-size:12.5px;line-height:1.6}.caveat{font-size:12px;color:var(--muted);margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line)}
-    .toolbar{border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;position:sticky;top:8px;z-index:3}.seg{display:flex;background:#eef2f3;padding:4px;border-radius:9px;gap:3px}.seg button{border:0;background:none;border-radius:7px;padding:9px 16px;color:var(--muted);font-weight:700}.seg button.active{color:var(--accent);background:#fff;box-shadow:0 1px 4px #0001}.sort-wrap{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.sort-wrap select{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:var(--ink)}.hint{font-size:12px;color:var(--muted);white-space:nowrap}
+    .toolbar{border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:16px;position:sticky;top:8px;z-index:3}.seg{display:flex;background:#eef2f3;padding:4px;border-radius:9px;gap:3px;max-width:100%;overflow-x:auto}.seg button{border:0;background:none;border-radius:7px;padding:9px 16px;color:var(--muted);font-weight:700;white-space:nowrap}.seg button.active{color:var(--accent);background:#fff;box-shadow:0 1px 4px #0001}.sort-wrap{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}.sort-wrap select{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 12px;color:var(--ink)}.hint{font-size:12px;color:var(--muted);white-space:nowrap}
     .section{border-radius:12px;margin-bottom:14px;overflow:hidden}.section-header{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fbfcfc;padding:14px 18px;border-bottom:1px solid var(--line)}.section-header h2{font-size:17px;margin:0}.section-header small{font-size:12px;color:var(--muted);font-weight:500}.section-header .numbers{display:flex;gap:18px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}.section-header .numbers b{color:var(--ink);font-size:14px}.table-head,.row{display:grid;grid-template-columns:minmax(170px,1.4fr) 56px repeat(3,minmax(105px,1fr)) 102px;align-items:center;gap:13px;padding:9px 18px}.table-head{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.03em}.table-head span:nth-child(n+3){text-align:right}.table-head .selected-metric{color:var(--accent)}.row{border:0;border-top:1px solid var(--line);box-shadow:none;min-height:76px}.row:hover{background:#fbfdfd}.name{min-width:0}.name b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.name small{display:block;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.thumb{width:48px;height:58px;object-fit:cover;border-radius:6px;border:1px solid #e7e9e9;background:#eee;display:block}.thumb-button{padding:0;background:none;border:0;width:48px;border-radius:6px}.thumb-button:focus-visible,.seg button:focus-visible,.back:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.num,.rate{text-align:right;font-variant-numeric:tabular-nums;font-weight:700}.rate{color:var(--accent)}.metric{display:flex;justify-content:flex-end;align-items:center;min-height:32px;padding:0 8px;border-radius:6px}.metric.active{background:linear-gradient(90deg,rgba(20,105,99,.17) 0 var(--bar),transparent var(--bar) 100%)}.metric.active.rate{background:linear-gradient(90deg,rgba(20,105,99,.22) 0 var(--bar),transparent var(--bar) 100%)}.paid{font-size:11px;font-weight:800;padding:5px 7px;border-radius:6px;white-space:nowrap;text-align:center;display:inline-block}.paid.yes{color:var(--gold);background:var(--gold-soft)}.paid.no{color:#53636b;background:#edf1f2}.data-category{color:var(--muted);font-size:11px}.empty{padding:24px;color:var(--muted)}
     .method{color:var(--muted);font-size:12px;line-height:1.7;margin:22px 0 0}.method strong{color:var(--ink)}
     dialog{border:0;border-radius:13px;padding:0;max-width:min(90vw,800px);max-height:92vh;box-shadow:0 24px 80px #0005;background:#fff}dialog::backdrop{background:#101b27c9}.lightbox{padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center}.lightbox img{max-width:100%;max-height:75vh;object-fit:contain;border-radius:7px}.lightbox footer{display:flex;align-items:center;gap:16px;width:100%;justify-content:space-between}.lightbox p{margin:0;font-weight:700}.close{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px}
@@ -27,7 +27,7 @@
     </div>
     <div class="stats" id="stats"></div>
     <section class="panel" aria-labelledby="analysis-title"><h2 id="analysis-title">上新观察</h2><div class="insights" id="insights"></div><p class="caveat">观察结论来自这 12 天的事件数。缺少曝光量、上线前同口径素材数据与付费转化数据，不能据此判断上新带来的增量或实际收入。</p></section>
-    <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" class="active" aria-pressed="true">按照分类看</button><button type="button" id="by-data" aria-pressed="false">按照数据看</button></div><div class="sort-wrap" id="sort-wrap"><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">分类内按点击数降序 · 仅排序列显示比例条</span></div>
+    <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" class="active" aria-pressed="true">按照分类看</button><button type="button" id="by-data" aria-pressed="false">按照数据看</button><button type="button" id="by-reorder" aria-pressed="false">调整顺序结果</button></div><div class="sort-wrap" id="sort-wrap"><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">分类内按点击数降序 · 仅排序列显示比例条</span></div>
     <div id="results"></div>
     <p class="method"><strong>统计口径：</strong>点击数和保存数取 CSV 中 Outfit_ 自定义参数的事件数；保存率＝保存事件数 ÷ 点击事件数，并非用户级转化率。Satin Slip、Bold Suit、Slim Suit 的颜色变体事件合并到主效果；Trend 与分类区重复展示的卡片只计一次。付费标记取自品类参考页，不代表该期间的实际付费或收入。Wedding 的 6 张新增参考图及 Y2K 的 18 张参考图没有匹配的点击埋点，未列入 40 个效果与汇总数。</p>
   </main>
@@ -69,29 +69,50 @@
         return `<div class="row"><div class="name"><b title="${row.name}">${row.name}</b><small>${row.english}${showCategory ? ' · '+categoryNames[row.category] : ''}</small></div><button class="thumb-button" type="button" data-image="${row.id}" aria-label="放大${row.name}图片"><img class="thumb" src="${row.thumb}" alt="${row.name}" loading="lazy"></button>${metricHTML(row,'clicks',activeMetric,maxValue)}${metricHTML(row,'saves',activeMetric,maxValue)}${metricHTML(row,'rate',activeMetric,maxValue)}<div><span class="paid ${row.paid?'yes':'no'}">${row.paid?'付费效果':'免费效果'}</span></div></div>`;
       }
       function tableHeader(activeMetric) { return `<div class="table-head"><span>名字</span><span>图片</span><span class="${activeMetric==='clicks'?'selected-metric':''}">点击数</span><span class="${activeMetric==='saves'?'selected-metric':''}">保存数</span><span class="${activeMetric==='rate'?'selected-metric':''}">保存率</span><span>是否付费效果</span></div>`; }
+      function alternateByPaid(items) {
+        const paid = items.filter(row => row.paid).sort((a,b) => b.rate-a.rate || b.clicks-a.clicks);
+        const free = items.filter(row => !row.paid).sort((a,b) => b.rate-a.rate || b.clicks-a.clicks);
+        const ordered = [];
+        let nextPaid = (paid[0]?.rate ?? -1) >= (free[0]?.rate ?? -1);
+        while (paid.length || free.length) {
+          const queue = nextPaid ? paid : free;
+          if (queue.length) ordered.push(queue.shift());
+          nextPaid = !nextPaid;
+        }
+        return ordered;
+      }
       function render() {
         const isData = mode === 'data';
-        const key = sort.value;
+        const isReorder = mode === 'reorder';
+        const key = isReorder ? 'rate' : sort.value;
         const sortName = {clicks:'点击数',saves:'保存数',rate:'保存率'}[key];
-        document.querySelector('#by-category').classList.toggle('active', !isData);
+        document.querySelector('#by-category').classList.toggle('active', mode === 'category');
         document.querySelector('#by-data').classList.toggle('active', isData);
-        document.querySelector('#by-category').setAttribute('aria-pressed', String(!isData));
+        document.querySelector('#by-reorder').classList.toggle('active', isReorder);
+        document.querySelector('#by-category').setAttribute('aria-pressed', String(mode === 'category'));
         document.querySelector('#by-data').setAttribute('aria-pressed', String(isData));
-        document.querySelector('#view-hint').textContent = isData ? `按${sortName}降序 · 比例条以全列表最大值为 100%` : `分类内按${sortName}降序 · 比例条以分类内最大值为 100%`;
+        document.querySelector('#by-reorder').setAttribute('aria-pressed', String(isReorder));
+        document.querySelector('#sort-wrap').hidden = isReorder;
+        document.querySelector('#view-hint').textContent = isReorder ? '分类按整体保存率降序 · 付费/免费交替，各自按保存率降序' : isData ? `按${sortName}降序 · 比例条以全列表最大值为 100%` : `分类内按${sortName}降序 · 比例条以分类内最大值为 100%`;
         if (isData) {
           const sorted = [...rows].sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
           const maxValue = sorted[0][key];
           results.innerHTML = `<section class="section"><div class="section-header"><h2>全部效果 <small>40 个唯一素材</small></h2><div class="numbers">按${sortName}从高到低</div></div>${tableHeader(key)}${sorted.map(row => rowHTML(row,true,key,maxValue)).join('')}</section>`;
         } else {
-          results.innerHTML = categories.map(category => {
-            const items = rows.filter(row => row.category === category).sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
+          const groups = categories.map(category => ({category, rows:rows.filter(row => row.category === category)}));
+          if (isReorder) groups.sort((a,b) => sum(b.rows,'saves')/sum(b.rows,'clicks') - sum(a.rows,'saves')/sum(a.rows,'clicks'));
+          results.innerHTML = groups.map(({category, rows:groupRows}) => {
+            const items = isReorder ? alternateByPaid(groupRows) : [...groupRows].sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
             const clicks = sum(items,'clicks'), saves = sum(items,'saves');
-            return `<section class="section"><div class="section-header"><h2>${categoryNames[category]} <small>${items.length} 个效果 · 按${sortName}↓</small></h2><div class="numbers"><span>点击 <b>${number(clicks)}</b></span><span>保存 <b>${number(saves)}</b></span><span>保存率 <b>${percent(saves/clicks)}</b></span></div></div>${tableHeader(key)}${items.map(row => rowHTML(row,false,key,items[0][key])).join('')}</section>`;
+            const label = isReorder ? '付费/免费交替 · 组内保存率↓' : `按${sortName}↓`;
+            const maxValue = Math.max(...items.map(row => row[key]));
+            return `<section class="section"><div class="section-header"><h2>${categoryNames[category]} <small>${items.length} 个效果 · ${label}</small></h2><div class="numbers"><span>点击 <b>${number(clicks)}</b></span><span>保存 <b>${number(saves)}</b></span><span>保存率 <b>${percent(saves/clicks)}</b></span></div></div>${tableHeader(key)}${items.map(row => rowHTML(row,false,key,maxValue)).join('')}</section>`;
           }).join('');
         }
       }
       document.querySelector('#by-category').addEventListener('click', () => {mode='category';render();});
       document.querySelector('#by-data').addEventListener('click', () => {mode='data';render();});
+      document.querySelector('#by-reorder').addEventListener('click', () => {mode='reorder';render();});
       sort.addEventListener('change',render);
       const dialog = document.querySelector('#image-dialog');
       results.addEventListener('click', event => {
