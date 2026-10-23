@@ -27,7 +27,7 @@
     </div>
     <div class="stats" id="stats"></div>
     <section class="panel" aria-labelledby="analysis-title"><h2 id="analysis-title">上新观察</h2><div class="insights" id="insights"></div><p class="caveat">观察结论来自这 12 天的事件数。缺少曝光量、上线前同口径素材数据与付费转化数据，不能据此判断上新带来的增量或实际收入。</p></section>
-    <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" class="active" aria-pressed="true">按照分类看</button><button type="button" id="by-data" aria-pressed="false">按照数据看</button></div><div class="sort-wrap" id="sort-wrap" hidden><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">四个正式分类 · 各 10 个效果</span></div>
+    <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" class="active" aria-pressed="true">按照分类看</button><button type="button" id="by-data" aria-pressed="false">按照数据看</button></div><div class="sort-wrap" id="sort-wrap"><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">分类内按点击数降序 · 仅排序列显示比例条</span></div>
     <div id="results"></div>
     <p class="method"><strong>统计口径：</strong>点击数和保存数取 CSV 中 Outfit_ 自定义参数的事件数；保存率＝保存事件数 ÷ 点击事件数，并非用户级转化率。Satin Slip、Bold Suit、Slim Suit 的颜色变体事件合并到主效果；Trend 与分类区重复展示的卡片只计一次。付费标记取自品类参考页，不代表该期间的实际付费或收入。Wedding 的 6 张新增参考图及 Y2K 的 18 张参考图没有匹配的点击埋点，未列入 40 个效果与汇总数。</p>
   </main>
@@ -71,23 +71,22 @@
       function tableHeader(activeMetric) { return `<div class="table-head"><span>名字</span><span>图片</span><span class="${activeMetric==='clicks'?'selected-metric':''}">点击数</span><span class="${activeMetric==='saves'?'selected-metric':''}">保存数</span><span class="${activeMetric==='rate'?'selected-metric':''}">保存率</span><span>是否付费效果</span></div>`; }
       function render() {
         const isData = mode === 'data';
+        const key = sort.value;
+        const sortName = {clicks:'点击数',saves:'保存数',rate:'保存率'}[key];
         document.querySelector('#by-category').classList.toggle('active', !isData);
         document.querySelector('#by-data').classList.toggle('active', isData);
         document.querySelector('#by-category').setAttribute('aria-pressed', String(!isData));
         document.querySelector('#by-data').setAttribute('aria-pressed', String(isData));
-        document.querySelector('#sort-wrap').hidden = !isData;
-        document.querySelector('#view-hint').textContent = isData ? '仅排序列显示比例条 · 以全列表最大值为 100%' : '按点击数排列 · 比例条以分类内最大值为 100%';
+        document.querySelector('#view-hint').textContent = isData ? `按${sortName}降序 · 比例条以全列表最大值为 100%` : `分类内按${sortName}降序 · 比例条以分类内最大值为 100%`;
         if (isData) {
-          const key = sort.value;
           const sorted = [...rows].sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
-          const sortName = {clicks:'点击数',saves:'保存数',rate:'保存率'}[key];
           const maxValue = sorted[0][key];
           results.innerHTML = `<section class="section"><div class="section-header"><h2>全部效果 <small>40 个唯一素材</small></h2><div class="numbers">按${sortName}从高到低</div></div>${tableHeader(key)}${sorted.map(row => rowHTML(row,true,key,maxValue)).join('')}</section>`;
         } else {
           results.innerHTML = categories.map(category => {
-            const items = rows.filter(row => row.category === category).sort((a,b) => b.clicks-a.clicks);
+            const items = rows.filter(row => row.category === category).sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
             const clicks = sum(items,'clicks'), saves = sum(items,'saves');
-            return `<section class="section"><div class="section-header"><h2>${categoryNames[category]} <small>${items.length} 个效果</small></h2><div class="numbers"><span>点击 <b>${number(clicks)}</b></span><span>保存 <b>${number(saves)}</b></span><span>保存率 <b>${percent(saves/clicks)}</b></span></div></div>${tableHeader('clicks')}${items.map(row => rowHTML(row,false,'clicks',items[0].clicks)).join('')}</section>`;
+            return `<section class="section"><div class="section-header"><h2>${categoryNames[category]} <small>${items.length} 个效果 · 按${sortName}↓</small></h2><div class="numbers"><span>点击 <b>${number(clicks)}</b></span><span>保存 <b>${number(saves)}</b></span><span>保存率 <b>${percent(saves/clicks)}</b></span></div></div>${tableHeader(key)}${items.map(row => rowHTML(row,false,key,items[0][key])).join('')}</section>`;
           }).join('');
         }
       }
