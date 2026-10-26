@@ -41,10 +41,10 @@ function renderComparison(mode, funnelSortKey = 'saveRate') {
       ['点击 → 预览成功',pct(d.preview/d.outfit.clicks),`${n(d.preview)} / ${n(d.outfit.clicks)}`],
       ['预览成功 → 保存',pct(d.outfit.saves/d.preview),`${n(d.outfit.saves)} / ${n(d.preview)}`],
       ['点击 → 保存',pct(d.outfit.rate),`${n(d.outfit.saves)} / ${n(d.outfit.clicks)}`]
-    ])}${funnel}${note('EffectPreview 是预览成功事件：同一效果每次点击后最多计一次成功预览，重复滑动滑竿或档位不重复计入。这里用汇总事件相除，并非同一批用户或请求逐条追踪的真实转化漏斗。漏斗保留原始 12 天总数，不折算事件。')}`)
+    ])}${funnel}`)
     + panel('换装与其他工具漏斗对比', `<p class="report-lead">2026.10.11—10.22 · 同期完整 12 天 · ${comparisonOrder}</p>${toolComparison}${note('从点击量看，换装有较强的尝试吸引力：12 天内产生 66,875 次点击，在这 13 个工具中按点击量位居前列。但最终仅产生 15,176 次保存，点击到保存的事件比为 22.7%，约每 4.4 次点击对应 1 次保存，说明点击兴趣尚未充分转化为保存。后续可重点优化生成效果与预览后的保存体验；点击量反映尝试规模，实际点击意愿还需结合曝光量判断。')}`)
     + panel('点击与预览记录核对', `${reconciliation}${note(`成功预览 + 已记录失败 = ${n(d.preview+d.failures)}，比点击少 ${n(d.unmatched)}（${pct(d.unmatched/d.outfit.clicks)}）。这是汇总事件数的差额，不是 Unknown 失败事件；当前导出没有 Outfit_…_Unknown 记录，不能直接判定这部分为失败；预览成功与失败也可能发生在不同重试中，缺少请求 ID，无法逐次闭合。`)}`)
-    + panel('预览失败原因', `${failures}${note('原因定义取自“预览和换装失败数据埋点结构.png”。Paywall 表示弹出付费拦截后未付费，UserCancel 表示完成前主动取消，不能统称为技术失败。当前 Outfit 的预览和失败参数来源均为 Server。')}`)
+    + panel('预览失败原因', `${failures}`)
     + panel('建议优先检查', `<div class="report-findings"><p><b>付费拦截优先：</b>${pct(paywall/d.failures)} 的失败事件来自付费页。结合付费点击、订阅完成与返回预览事件，检查付费页之后的流失，不能直接把这些事件视为服务器异常。</p><p><b>预览后的保存：</b>预览成功到保存的事件比为 ${pct(d.outfit.saves/d.preview)}。建议按付费/免费和素材质量进一步拆分，但当前预览导出仅有工具级参数，暂时无法得到每个素材的预览保存率。</p><p><b>补齐链路：</b>增加请求 ID、重试标记和结束状态，核对 ${n(d.unmatched)} 次未匹配到预览记录差额，并关联取消、成功和保存事件。</p></div>`)
     ;
   }
@@ -57,8 +57,8 @@ function renderComparison(mode, funnelSortKey = 'saveRate') {
   const title = isBefore ? 'Outfit 对比更新前 Makeover' : 'Outfit 对比同期 Makeup';
   const comparisonDates = isBefore ? 'Outfit：2026年10月11日到10月18日；Makeover：2026年10月3日到10月10日' : '2026年10月11日到10月18日';
   const summary = isBefore
-    ? `实际 8 天数据中，Outfit 点击量为 Makeover 的 ${clickRatio.toFixed(2)} 倍，保存量为 ${saveRatio.toFixed(2)} 倍；事件保存率高 ${ratePP.toFixed(1)} 个百分点。跨工具、跨时期比较，不能直接归因为本次上新。`
-    : `同期 8 天中，Outfit 点击量为 Makeup 的 ${pct(a.clicks/b.clicks)}，保存量为 ${pct(a.saves/b.saves)}；事件保存率高 ${ratePP.toFixed(1)} 个百分点。工具曝光、入口和素材数量不同，不能据此推断用户偏好或收入。`;
+    ? `实际 8 天数据中，Outfit 点击量为 Makeover 的 ${clickRatio.toFixed(2)} 倍，保存量为 ${saveRatio.toFixed(2)} 倍；事件保存率高 ${ratePP.toFixed(1)} 个百分点。`
+    : `同期 8 天中，Outfit 点击量为 Makeup 的 ${pct(a.clicks/b.clicks)}，保存量为 ${pct(a.saves/b.saves)}；事件保存率高 ${ratePP.toFixed(1)} 个百分点。`;
   const comparison = table(['工具 / 实际统计周期','点击数','保存数','事件保存率'],[a,b].map(item=>[
     `<b>${item.tool}</b><small class="parameter">2026.${period(item)}</small>`,n(item.clicks),n(item.saves),`<b class="accent-text">${pct(item.rate)}</b>`
   ]));
