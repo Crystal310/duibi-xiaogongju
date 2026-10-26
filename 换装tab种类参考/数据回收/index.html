@@ -33,7 +33,7 @@
       <a class="back" href="../index.html">← 返回品类参考</a>
     </div>
     <div class="stats" id="stats"></div>
-    <section class="panel" aria-labelledby="analysis-title"><h2 id="analysis-title">综合结论</h2><div class="insights" id="insights"></div><p class="caveat">Outfit 与同期 Makeup：10.11—10.18；更新前 Makeover：10.03—10.10，均为实际 8 天。漏斗：10.11—10.22（12 天）。保存率为事件数之比，不是去重用户转化；跨工具对比不能直接解释为版本增量。</p></section>
+    <section class="panel" aria-labelledby="analysis-title"><h2 id="analysis-title">综合结论</h2><div class="insights" id="insights"></div><p class="caveat">Outfit 与同期 Makeup：10.11—10.18；更新前 Makeover：10.03—10.10，均为实际 8 天。漏斗：10.11—10.22（12 天）。</p></section>
     <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" aria-pressed="false">按照分类看</button><button type="button" id="by-reorder" aria-pressed="false">调整顺序结果</button><button type="button" id="by-makeover" class="active" aria-pressed="true">对比 Makeover</button><button type="button" id="by-makeup" aria-pressed="false">同期 Makeup</button><button type="button" id="by-funnel" aria-pressed="false">换装漏斗</button></div><div class="sort-wrap" id="sort-wrap" hidden><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">实际 8 天对比</span></div>
     <div id="results"></div>
   </main>
@@ -62,7 +62,7 @@
       const comparison = REPORT_COMPARISON;
       document.querySelector('#insights').innerHTML = `<ul class="conclusion-points"><li>替换 Makeover 后表现提升：同样 8 天，Outfit 点击量为原来的 ${(comparison.outfit.clicks/comparison.makeover.clicks).toFixed(2)} 倍，保存量为 ${(comparison.outfit.saves/comparison.makeover.saves).toFixed(2)} 倍。</li><li>保存率由 ${percent(comparison.makeover.rate)} 提高到 ${percent(comparison.outfit.rate)}，提升 ${((comparison.outfit.rate-comparison.makeover.rate)*100).toFixed(1)} 个百分点。</li><li>对比同期 Makeup，Outfit 保存率更高：${percent(comparison.outfit.rate)} vs ${percent(comparison.makeup.rate)}；点击量为其 ${percent(comparison.outfit.clicks/comparison.makeup.clicks)}，保存量达到其 ${percent(comparison.outfit.saves/comparison.makeup.saves)}。</li><li>12 天漏斗中，两者点击到预览成功的事件比均约 ${percent(comparison.preview/comparison.funnel.outfit.clicks)}；Outfit 预览后的保存比为 ${percent(comparison.funnel.outfit.saves/comparison.preview)}，高于 Makeup 的 ${percent(comparison.funnel.tools.find(row=>row.tool==='Makeup').previewSaveRate)}，链路表现正常。</li><li>换装点击吸引力较强，但点击兴趣仍未充分转化为保存，后续可继续优化效果体验与付费转化。</li></ul>`;
       let mode = 'makeover';
-      let funnelSortKey = null;
+      let funnelSortKey = 'saveRate';
       const results = document.querySelector('#results');
       const sort = document.querySelector('#sort');
       function metricHTML(row, key, activeMetric, maxValue) {

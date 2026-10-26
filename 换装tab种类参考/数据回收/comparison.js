@@ -1,4 +1,4 @@
-function renderComparison(mode, funnelSortKey = null) {
+function renderComparison(mode, funnelSortKey = 'saveRate') {
   const source = REPORT_COMPARISON;
   const d = mode === 'funnel' ? {...source,outfit:source.funnel.outfit} : source;
   const n = value => value.toLocaleString('zh-CN', {maximumFractionDigits:0});
