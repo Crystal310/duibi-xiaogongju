@@ -17,22 +17,30 @@
     .method{color:var(--muted);font-size:12px;line-height:1.7;margin:22px 0 0}.method strong{color:var(--ink)}
     dialog{border:0;border-radius:13px;padding:0;max-width:min(90vw,800px);max-height:92vh;box-shadow:0 24px 80px #0005;background:#fff}dialog::backdrop{background:#101b27c9}.lightbox{padding:16px;display:flex;flex-direction:column;gap:10px;align-items:center}.lightbox img{max-width:100%;max-height:75vh;object-fit:contain;border-radius:7px}.lightbox footer{display:flex;align-items:center;gap:16px;width:100%;justify-content:space-between}.lightbox p{margin:0;font-weight:700}.close{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px}
     @media(max-width:760px){.shell{padding:22px 13px 50px}.header{display:block}.back{display:inline-block;margin-top:14px}.stats{grid-template-columns:repeat(2,1fr)}.insights{grid-template-columns:1fr}.toolbar{position:static;flex-wrap:wrap}.hint{display:none}.section{overflow-x:auto}.table-head,.row{min-width:790px}.section-header{min-width:790px}}
+
+    .toolbar{flex-wrap:wrap}.hint{white-space:normal}.report-panel{background:#fff;border:1px solid var(--line);border-radius:13px;padding:22px;margin-bottom:16px;box-shadow:0 3px 14px #18222d06}.report-panel h2{font-size:19px;margin:0 0 8px}.report-lead{color:var(--muted);font-size:13px;margin:0 0 16px}.report-callout{background:#e9f4f1;border-left:3px solid var(--accent);padding:14px 16px;line-height:1.75;border-radius:4px;color:#23524c;font-size:13px}.report-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:18px 0}.report-kpis>div{background:#f7f9fa;padding:15px;border-radius:9px}.report-kpis small{color:var(--muted);font-size:12px}.report-kpis strong{display:block;font-size:25px;font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin:5px 0}.report-kpis p{font-size:12px;color:var(--muted);margin:0;line-height:1.6}.report-table-wrap{overflow-x:auto}.report-table{width:100%;border-collapse:collapse;font-size:13px;margin:12px 0}.report-table th{background:#f5f8f8;color:var(--muted);font-size:12px;text-align:right;white-space:nowrap;padding:12px;border-bottom:1px solid var(--line)}.report-table th:first-child,.report-table td:first-child{text-align:left}.report-table td{padding:13px 12px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}.report-table td:last-child{min-width:110px}.report-table td:first-child{min-width:150px}.report-table tbody tr:hover{background:#fafcfc}.parameter{display:block;font-size:11px;color:var(--muted);margin-top:4px;word-break:break-word}.report-note{font-size:12px;color:var(--muted);line-height:1.75;margin:12px 0 0}.accent-text{color:var(--accent)}.comparison-bars{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:20px 0}.comparison-bar-group h3{font-size:12px;color:var(--muted);margin:0 0 12px}.comparison-bar-row{display:grid;grid-template-columns:65px 1fr 70px;align-items:center;gap:8px;font-size:11px;margin:12px 0}.comparison-bar-row b{text-align:right;font-variant-numeric:tabular-nums}.comparison-bar-track{height:13px;background:#eff3f4;border-radius:4px;overflow:hidden}.comparison-bar-track i{display:block;height:100%;border-radius:4px}.comparison-bar-track .outfit{background:#2d8980}.comparison-bar-track .benchmark{background:#8e9eae}.report-panel summary{font-size:14px;font-weight:700;cursor:pointer}.report-panel[open] summary{margin-bottom:18px}.funnel-stages{display:flex;flex-direction:column;gap:4px;max-width:760px;margin:26px auto}.funnel-stage{padding:10px 0 14px;text-align:center}.funnel-stage:nth-child(1) .funnel-stage-track i{background:#61aaa1}.funnel-stage:nth-child(2) .funnel-stage-track i{background:#2d8980}.funnel-stage:nth-child(3) .funnel-stage-track i{background:#146963}.funnel-stage-top{display:flex;justify-content:center;gap:14px;align-items:center;margin-bottom:10px}.funnel-stage-top span{font-size:12px;color:var(--muted)}.funnel-stage-top strong{font-size:22px;font-variant-numeric:tabular-nums}.funnel-stage-track{display:flex;justify-content:center;height:44px;overflow:hidden}.funnel-stage-track i{display:block;height:100%;background:#2d8980;border-radius:5px}.funnel-stage small{display:block;color:var(--muted);font-size:12px;margin-top:10px}.event-reconcile{display:flex;height:28px;border-radius:6px;overflow:hidden;margin:20px 0 12px}.event-reconcile span{display:block}.event-reconcile .success{background:#2d8980}.event-reconcile .failure{background:#d69656}.event-reconcile .unknown{background:#a8b3bf}.event-legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted)}.event-legend span:before{content:'●';margin-right:6px;color:#2d8980}.event-legend span:nth-child(2):before{color:#d69656}.event-legend span:nth-child(3):before{color:#a8b3bf}.report-findings p{font-size:13px;color:var(--muted);line-height:1.8}.report-findings b{color:var(--ink)}
+    @media(max-width:900px){.comparison-bars{grid-template-columns:1fr}.comparison-bar-row{grid-template-columns:70px 1fr 90px}.funnel-stages{grid-template-columns:1fr}.report-kpis{grid-template-columns:1fr}.report-panel{padding:16px}.seg button{padding:9px 12px}.report-table{min-width:600px}}
+    .insights{display:block}.overall-conclusion p{font-size:14px;line-height:1.85;margin:0 0 14px;color:var(--muted)}.overall-conclusion p:last-child{margin-bottom:0}.overall-conclusion b{color:var(--ink)}
+    .funnel-tool-comparison table{min-width:940px}.funnel-tool-comparison .outfit-benchmark-row{background:#e5f2ef;font-weight:700}.funnel-tool-comparison td{white-space:nowrap}.funnel-tool-comparison td:last-child{min-width:100px}
+    .funnel-sort-button{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;padding:0;border:0;background:transparent;color:var(--muted);font:inherit;font-weight:700;white-space:nowrap;cursor:pointer}.funnel-sort-circle{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border:1.5px solid #a7b5bd;border-radius:50%;background:#fff;font-size:13px;line-height:1;flex-shrink:0}.funnel-sort-button.selected{color:var(--accent)}.funnel-sort-button.selected .funnel-sort-circle{border-color:var(--accent);background:var(--accent-soft)}.funnel-sort-button:hover .funnel-sort-circle{border-color:var(--accent)}.funnel-sort-button:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:4px}.funnel-tool-comparison th{vertical-align:middle}
+    .conclusion-points{list-style:none;padding:0;margin:0;color:#18222d;font-weight:400;font-size:14px;line-height:1.8}.conclusion-points li{position:relative;padding-left:15px;margin:0 0 10px}.conclusion-points li:last-child{margin-bottom:0}.conclusion-points li:before{content:'·';position:absolute;left:0;color:#18222d;font-weight:400}
   </style>
 </head>
 <body>
   <main class="shell">
     <div class="header">
-      <div><div class="eyebrow">UFace / Outfit / 2026.10.11—10.22</div><h1>数据回收</h1><p class="sub">换装上新效果：按素材查看点击、保存与保存率。图片缩略显示，点击可放大。</p></div>
+      <div><div class="eyebrow">UFace / Outfit / 2026.10.11—10.18</div><h1>数据回收</h1><p class="sub">点击保存对比采用实际 8 天数据；换装漏斗单独保留 10.11—10.22 的 12 天完整数据。</p></div>
       <a class="back" href="../index.html">← 返回品类参考</a>
     </div>
     <div class="stats" id="stats"></div>
-    <section class="panel" aria-labelledby="analysis-title"><h2 id="analysis-title">上新观察</h2><div class="insights" id="insights"></div><p class="caveat">观察结论来自这 12 天的事件数。缺少曝光量、上线前同口径素材数据与付费转化数据，不能据此判断上新带来的增量或实际收入。</p></section>
-    <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" class="active" aria-pressed="true">按照分类看</button><button type="button" id="by-data" aria-pressed="false">按照数据看</button><button type="button" id="by-reorder" aria-pressed="false">调整顺序结果</button></div><div class="sort-wrap" id="sort-wrap"><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">分类内按点击数降序 · 仅排序列显示比例条</span></div>
+    <section class="panel" aria-labelledby="analysis-title"><h2 id="analysis-title">综合结论</h2><div class="insights" id="insights"></div><p class="caveat">Outfit 与同期 Makeup：10.11—10.18；更新前 Makeover：10.03—10.10，均为实际 8 天。漏斗：10.11—10.22（12 天）。保存率为事件数之比，不是去重用户转化；跨工具对比不能直接解释为版本增量。</p></section>
+    <div class="toolbar"><div class="seg" aria-label="查看方式"><button type="button" id="by-category" aria-pressed="false">按照分类看</button><button type="button" id="by-reorder" aria-pressed="false">调整顺序结果</button><button type="button" id="by-makeover" class="active" aria-pressed="true">对比 Makeover</button><button type="button" id="by-makeup" aria-pressed="false">同期 Makeup</button><button type="button" id="by-funnel" aria-pressed="false">换装漏斗</button></div><div class="sort-wrap" id="sort-wrap" hidden><label for="sort">排序</label><select id="sort"><option value="clicks">点击数 ↓</option><option value="saves">保存数 ↓</option><option value="rate">保存率 ↓</option></select></div><span class="hint" id="view-hint">实际 8 天对比</span></div>
     <div id="results"></div>
-    <p class="method"><strong>统计口径：</strong>点击数和保存数取 CSV 中 Outfit_ 自定义参数的事件数；保存率＝保存事件数 ÷ 点击事件数，并非用户级转化率。Satin Slip、Bold Suit、Slim Suit 的颜色变体事件合并到主效果；Trend 与分类区重复展示的卡片只计一次。付费标记取自品类参考页，不代表该期间的实际付费或收入。Wedding 的 6 张新增参考图及 Y2K 的 18 张参考图没有匹配的点击埋点，未列入 40 个效果与汇总数。</p>
   </main>
   <dialog id="image-dialog" aria-label="素材大图"><div class="lightbox"><img id="large-image" alt=""><footer><p id="large-name"></p><button class="close" id="close-dialog" type="button">关闭 ✕</button></footer></div></dialog>
   <script src="./data.js"></script>
+  <script src="./comparison-data.js"></script>
+  <script src="./comparison.js"></script>
   <script>
     (() => {
       const rows = OUTFIT_DATA.rows;
@@ -46,17 +54,15 @@
       const top = [...rows].sort((a,b) => b.clicks-a.clicks)[0];
       const topRate = [...rows].filter(row => row.clicks >= 500).sort((a,b) => b.rate-a.rate)[0];
       document.querySelector('#stats').innerHTML = [
-        ['有效效果', number(rows.length), '四个正式分类'],
-        ['点击数', number(totalClicks), 'Outfit 点击事件'],
-        ['保存数', number(totalSaves), 'Outfit 保存事件'],
-        ['整体保存率', percent(totalSaves/totalClicks), '保存事件数 ÷ 点击事件数'],
+        ['Outfit 有效效果', number(rows.length), '四个正式分类'],
+        ['Outfit 点击数', number(totalClicks), 'Outfit 点击事件'],
+        ['Outfit 保存数', number(totalSaves), 'Outfit 保存事件'],
+        ['Outfit 保存率', percent(totalSaves/totalClicks), '保存事件数 ÷ 点击事件数'],
       ].map(([label,value,note]) => `<div class="stat"><small>${label}</small><strong>${value}</strong><em>${note}</em></div>`).join('');
-      document.querySelector('#insights').innerHTML = [
-        ['点击领先', `${top.name}以 ${number(top.clicks)} 次点击位居第一，产生 ${number(top.saves)} 次保存（${percent(top.rate)}）。`],
-        ['日常类表现', `日常类的保存率为 ${percent(sum(rows.filter(row=>row.category==='Casual'),'saves')/sum(rows.filter(row=>row.category==='Casual'),'clicks'))}，四类最高。点击数不少于 500 的效果中，${topRate.name}保存率最高（${percent(topRate.rate)}）。`],
-        ['付费效果', `付费标记效果 ${paidRows.length} 个，保存率 ${percent(sum(paidRows,'saves')/sum(paidRows,'clicks'))}；免费效果 ${freeRows.length} 个，为 ${percent(sum(freeRows,'saves')/sum(freeRows,'clicks'))}。两组素材与曝光不同，此差异不代表付费机制影响。`]
-      ].map(([title,body]) => `<div class="insight"><b>${title}</b><p>${body}</p></div>`).join('');
-      let mode = 'category';
+      const comparison = REPORT_COMPARISON;
+      document.querySelector('#insights').innerHTML = `<ul class="conclusion-points"><li>替换 Makeover 后表现提升：同样 8 天，Outfit 点击量为原来的 ${(comparison.outfit.clicks/comparison.makeover.clicks).toFixed(2)} 倍，保存量为 ${(comparison.outfit.saves/comparison.makeover.saves).toFixed(2)} 倍。</li><li>保存率由 ${percent(comparison.makeover.rate)} 提高到 ${percent(comparison.outfit.rate)}，提升 ${((comparison.outfit.rate-comparison.makeover.rate)*100).toFixed(1)} 个百分点。</li><li>对比同期 Makeup，Outfit 保存率更高：${percent(comparison.outfit.rate)} vs ${percent(comparison.makeup.rate)}；点击量为其 ${percent(comparison.outfit.clicks/comparison.makeup.clicks)}，保存量达到其 ${percent(comparison.outfit.saves/comparison.makeup.saves)}。</li><li>12 天漏斗中，两者点击到预览成功的事件比均约 ${percent(comparison.preview/comparison.funnel.outfit.clicks)}；Outfit 预览后的保存比为 ${percent(comparison.funnel.outfit.saves/comparison.preview)}，高于 Makeup 的 ${percent(comparison.funnel.tools.find(row=>row.tool==='Makeup').previewSaveRate)}，链路表现正常。</li><li>换装点击吸引力较强，但点击兴趣仍未充分转化为保存，后续可继续优化效果体验与付费转化。</li></ul>`;
+      let mode = 'makeover';
+      let funnelSortKey = null;
       const results = document.querySelector('#results');
       const sort = document.querySelector('#sort');
       function metricHTML(row, key, activeMetric, maxValue) {
@@ -82,40 +88,42 @@
         return ordered;
       }
       function render() {
-        const isData = mode === 'data';
         const isReorder = mode === 'reorder';
+        const isComparison = ['makeover','makeup','funnel'].includes(mode);
         const key = isReorder ? 'rate' : sort.value;
         const sortName = {clicks:'点击数',saves:'保存数',rate:'保存率'}[key];
-        document.querySelector('#by-category').classList.toggle('active', mode === 'category');
-        document.querySelector('#by-data').classList.toggle('active', isData);
-        document.querySelector('#by-reorder').classList.toggle('active', isReorder);
-        document.querySelector('#by-category').setAttribute('aria-pressed', String(mode === 'category'));
-        document.querySelector('#by-data').setAttribute('aria-pressed', String(isData));
-        document.querySelector('#by-reorder').setAttribute('aria-pressed', String(isReorder));
-        document.querySelector('#sort-wrap').hidden = isReorder;
-        document.querySelector('#view-hint').textContent = isReorder ? '分类按整体保存率降序 · 付费/免费交替，各自按保存率降序' : isData ? `按${sortName}降序 · 比例条以全列表最大值为 100%` : `分类内按${sortName}降序 · 比例条以分类内最大值为 100%`;
-        if (isData) {
-          const sorted = [...rows].sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
-          const maxValue = sorted[0][key];
-          results.innerHTML = `<section class="section"><div class="section-header"><h2>全部效果 <small>40 个唯一素材</small></h2><div class="numbers">按${sortName}从高到低</div></div>${tableHeader(key)}${sorted.map(row => rowHTML(row,true,key,maxValue)).join('')}</section>`;
-        } else {
-          const groups = categories.map(category => ({category, rows:rows.filter(row => row.category === category)}));
-          if (isReorder) groups.sort((a,b) => sum(b.rows,'saves')/sum(b.rows,'clicks') - sum(a.rows,'saves')/sum(a.rows,'clicks'));
-          results.innerHTML = groups.map(({category, rows:groupRows}) => {
-            const items = isReorder ? alternateByPaid(groupRows) : [...groupRows].sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
-            const clicks = sum(items,'clicks'), saves = sum(items,'saves');
-            const label = isReorder ? '付费/免费交替 · 组内保存率↓' : `按${sortName}↓`;
-            const maxValue = Math.max(...items.map(row => row[key]));
-            return `<section class="section"><div class="section-header"><h2>${categoryNames[category]} <small>${items.length} 个效果 · ${label}</small></h2><div class="numbers"><span>点击 <b>${number(clicks)}</b></span><span>保存 <b>${number(saves)}</b></span><span>保存率 <b>${percent(saves/clicks)}</b></span></div></div>${tableHeader(key)}${items.map(row => rowHTML(row,false,key,maxValue)).join('')}</section>`;
-          }).join('');
+        ['category','reorder','makeover','makeup','funnel'].forEach(view => {
+          const button = document.querySelector('#by-'+view);
+          button.classList.toggle('active',mode===view);
+          button.setAttribute('aria-pressed',String(mode===view));
+        });
+        document.querySelector('#sort-wrap').hidden = isReorder || isComparison;
+        if (isComparison) {
+          document.querySelector('#view-hint').textContent = mode === 'funnel' ? '10.11—10.22 · 12 天事件漏斗' : '实际 8 天对比 · 点击—保存率';
+          results.innerHTML = renderComparison(mode,funnelSortKey);
+          return;
         }
+        document.querySelector('#view-hint').textContent = isReorder ? '分类按整体保存率降序 · 付费/免费交替，各自按保存率降序' : `分类内按${sortName}降序 · 比例条以分类内最大值为 100%`;
+        const groups = categories.map(category => ({category, rows:rows.filter(row => row.category === category)}));
+        if (isReorder) groups.sort((a,b) => sum(b.rows,'saves')/sum(b.rows,'clicks') - sum(a.rows,'saves')/sum(a.rows,'clicks'));
+        results.innerHTML = groups.map(({category, rows:groupRows}) => {
+          const items = isReorder ? alternateByPaid(groupRows) : [...groupRows].sort((a,b) => b[key]-a[key] || b.clicks-a.clicks || a.name.localeCompare(b.name));
+          const clicks = sum(items,'clicks'), saves = sum(items,'saves');
+          const label = isReorder ? '付费/免费交替 · 组内保存率↓' : `按${sortName}↓`;
+          const maxValue = Math.max(...items.map(row => row[key]));
+          return `<section class="section"><div class="section-header"><h2>${categoryNames[category]} <small>${items.length} 个效果 · ${label}</small></h2><div class="numbers"><span>点击 <b>${number(clicks)}</b></span><span>保存 <b>${number(saves)}</b></span><span>保存率 <b>${percent(saves/clicks)}</b></span></div></div>${tableHeader(key)}${items.map(row => rowHTML(row,false,key,maxValue)).join('')}</section>`;
+        }).join('');
       }
-      document.querySelector('#by-category').addEventListener('click', () => {mode='category';render();});
-      document.querySelector('#by-data').addEventListener('click', () => {mode='data';render();});
-      document.querySelector('#by-reorder').addEventListener('click', () => {mode='reorder';render();});
+      ['category','reorder','makeover','makeup','funnel'].forEach(view => document.querySelector('#by-'+view).addEventListener('click',()=>{mode=view;render();}));
       sort.addEventListener('change',render);
       const dialog = document.querySelector('#image-dialog');
       results.addEventListener('click', event => {
+        const sortButton = event.target.closest('[data-funnel-sort]');
+        if (sortButton) {
+          funnelSortKey = sortButton.dataset.funnelSort;
+          render();
+          return;
+        }
         const button = event.target.closest('[data-image]');
         if (!button) return;
         const row = rows.find(item => item.id === button.dataset.image);
