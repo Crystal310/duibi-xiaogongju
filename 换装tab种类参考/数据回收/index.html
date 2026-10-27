@@ -61,7 +61,7 @@
         ['Outfit 保存率', percent(totalSaves/totalClicks), '保存事件数 ÷ 点击事件数'],
       ].map(([label,value,note]) => `<div class="stat"><small>${label}</small><strong>${value}</strong><em>${note}</em></div>`).join('');
       const comparison = REPORT_COMPARISON;
-      document.querySelector('#insights').innerHTML = `<div class="conclusion-group"><p class="conclusion-heading"><strong>Outfit 替换 Makeover 后表现提升，同样 8 天</strong></p><ul class="conclusion-points"><li>Outfit 点击量为 Makeover 的 6.27 倍，保存量为 11.03 倍。</li><li>Makeover 保存率 12.9%，替换后 Outfit 保存率为 22.6%，提升 9.7 个百分点。</li></ul></div><div class="conclusion-group"><p class="conclusion-heading"><strong>Outfit 对比同期 Makeup 保存率更高</strong></p><ul class="conclusion-points"><li>Outfit 的点击到保存率为 22.6%，高于 Makeup 的 13.7%，领先 8.9 个百分点。</li></ul></div>`;
+      document.querySelector('#insights').innerHTML = `<div class="conclusion-group"><p class="conclusion-heading"><strong>Outfit替换 Makeover 后表现提升，同样 8 天</strong></p><ul class="conclusion-points"><li>Outfit 点击量为Makeover的 6.27 倍，保存量为 11.03 倍。</li><li>Makeover保存率 12.9% ，替换后Outfit保存率为 22.6%，提升 9.7 个百分点。</li></ul></div><div class="conclusion-group"><p class="conclusion-heading"><strong>Outfit 对比同期 Makeup保存率更高</strong></p><ul class="conclusion-points"><li>Outfit 的点击量保存率为 22.6%，高于 Makeup 的 13.7%，领先 8.9 个百分点。</li></ul></div>`;
       let mode = 'makeover';
       let funnelSortKey = 'saveRate';
       const results = document.querySelector('#results');
